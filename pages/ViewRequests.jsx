@@ -14,6 +14,7 @@ export default function MyRequests() {
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isViewReviewModalOpen, setIsViewReviewModalOpen] = useState(false);
+  const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false); // Added for confirmation
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
   const [otherReason, setOtherReason] = useState("");
@@ -144,6 +145,7 @@ export default function MyRequests() {
       } : req
     ));
     setIsDetailModalOpen(false);
+    setIsCompleteConfirmOpen(false);
     setActiveTab("Completed");
   };
 
@@ -174,14 +176,12 @@ export default function MyRequests() {
 
   return (
     <div className="w-full min-h-screen bg-[#FDF8F4] text-[#0B3B68] font-sans flex flex-col">
-      <header className="w-full bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-           <h1 className="text-2xl font-bold tracking-tighter text-[#00AF91] cursor-pointer" onClick={() => navigate('/home')}>
-            Traba<span className="text-[#0B3B68]">Home</span>
-          </h1>
-          <BellIcon className="w-5 h-5 text-gray-700" />
-        </div>
-      </header>
+     <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
+               <h1 className="text-2xl font-bold tracking-tighter text-[#00AF91] cursor-pointer" onClick={() => navigate('/home')}>
+                 Traba<span className="text-[#0B3B68]">Home</span>
+               </h1>
+               <div className="p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"><BellIcon className="w-6 h-6 text-[#0B3B68]" /></div>
+             </header>
 
       <main className="flex-grow w-full max-w-4xl mx-auto px-6 py-10">
         <h2 className="text-2xl font-bold mb-6">My Requests</h2>
@@ -245,7 +245,7 @@ export default function MyRequests() {
                 ) : req.status === 'Completed' ? (
                   <button onClick={() => { setSelectedRequestId(req.id); setIsRateModalOpen(true); }} className="px-10 py-1.5 bg-[#FF824D] text-white rounded-full text-[11px] font-bold">Rate</button>
                 ) : req.status === 'Accepted' ? (
-                  <button onClick={() => handleMarkComplete(req.id)} className="px-6 py-1.5 bg-[#00AF91] text-white rounded-full text-[11px] font-bold">Mark as complete</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsCompleteConfirmOpen(true); }} className="px-6 py-1.5 bg-[#00AF91] text-white rounded-full text-[11px] font-bold">Mark as complete</button>
                 ) : req.status === 'Cancelled' ? (
                   <button onClick={() => { setSelectedRequestId(req.id); setIsRequestAgainModalOpen(true); }} className="px-6 py-1.5 bg-[#0B3B68] text-white rounded-full text-[11px] font-bold">Request Again</button>
                 ) : req.status === 'Declined' ? (
@@ -377,7 +377,15 @@ export default function MyRequests() {
             >
               Done
             </button>
-            <button className="text-[11px] text-[#0B3B68] font-bold underline">View Worker Profile</button>
+            <button 
+              onClick={() => {
+                handleCloseSuccess();
+                navigate('/search', { state: selectedRequest });
+              }} 
+              className="text-[11px] text-[#0B3B68] font-bold underline"
+            >
+              View Worker Profile
+            </button>
           </div>
         </div>
       )}
@@ -445,7 +453,7 @@ export default function MyRequests() {
                   <div className="bg-red-50 p-4 rounded-xl border border-red-100">
                      <p className="text-[10px] text-red-600 font-bold mb-1 flex items-center gap-1 uppercase">⚠️ Worker's Reason:</p>
                      <p className="text-[12px] text-gray-700 font-medium leading-relaxed italic">
-                       "{selectedRequest.declineReason || "Sorry, I am currently unavailable for new bookings."}"
+                        "{selectedRequest.declineReason || "Sorry, I am currently unavailable for new bookings."}"
                      </p>
                   </div>
                 )}
@@ -502,7 +510,7 @@ export default function MyRequests() {
                 ) : selectedRequest.status === 'Completed' ? (
                   <button onClick={() => { setIsDetailModalOpen(false); setIsRateModalOpen(true); }} className="w-full py-3.5 bg-[#FF824D] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Rate Service</button>
                 ) : selectedRequest.status === 'Accepted' ? (
-                  <button onClick={() => handleMarkComplete(selectedRequest.id)} className="w-full py-3.5 bg-[#00AF91] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Mark as complete</button>
+                  <button onClick={() => { setIsCompleteConfirmOpen(true); setIsDetailModalOpen(false); }} className="w-full py-3.5 bg-[#00AF91] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Mark as complete</button>
                 ) : selectedRequest.status === 'Declined' ? (
                   <button onClick={() => { setIsDetailModalOpen(false); navigate('/search'); }} className="w-full py-3.5 bg-[#0B3B68] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-lg hover:bg-[#00AF91] transition-all">Find Another Worker</button>
                 ) : selectedRequest.status === 'Cancelled' ? (
@@ -511,6 +519,22 @@ export default function MyRequests() {
                   <button onClick={() => { setIsDetailModalOpen(false); setIsCancelModalOpen(true); }} className="w-full py-3.5 border-2 border-[#FF5252] text-[#FF5252] rounded-2xl text-[13px] font-black uppercase tracking-widest hover:bg-red-50 transition-all">Cancel Request</button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: MARK AS COMPLETE CONFIRMATION --- */}
+      {isCompleteConfirmOpen && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setIsCompleteConfirmOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[340px] rounded-3xl shadow-2xl p-8 text-center">
+            <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">✅</div>
+            <h3 className="text-lg font-bold">Complete Service?</h3>
+            <p className="text-[12px] text-gray-500 mt-2 mb-8">Has the worker finished the job? This will move the request to your completed list.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setIsCompleteConfirmOpen(false)} className="flex-1 py-3 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-400">Not yet</button>
+              <button onClick={() => handleMarkComplete(selectedRequestId)} className="flex-1 py-3 bg-[#00AF91] text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-green-100">Yes, Complete</button>
             </div>
           </div>
         </div>
@@ -541,23 +565,22 @@ export default function MyRequests() {
             <p className="text-[12px] text-gray-500 mt-2 mb-6 text-left">This will notify the worker and remove your request from their list.</p>
             <div className="space-y-3 mb-4 text-left">
               {["Found another worker", "No longer needed", "Worker took too long to respond", "Other (state reason)"].map((reason) => (
-                <label key={reason} className="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="cancelReason" className="accent-[#FF5252]" onChange={() => setCancelReason(reason)} />
-                  <span className="text-[12px] text-gray-600 font-medium">{reason}</span>
+                <label key={reason} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer">
+                  <input type="radio" name="reason" className="accent-[#FF5252]" onChange={() => setCancelReason(reason)} />
+                  <span className="text-[12px] font-medium">{reason}</span>
                 </label>
               ))}
             </div>
             {cancelReason === "Other (state reason)" && (
-               <textarea 
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs mb-4 focus:outline-[#FF5252]" 
-                  placeholder="Tell us why..."
-                  value={otherReason}
-                  onChange={(e) => setOtherReason(e.target.value)}
-               />
+              <textarea 
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[12px] mb-4 focus:outline-none"
+                placeholder="Please state your reason..."
+                onChange={(e) => setOtherReason(e.target.value)}
+              />
             )}
             <div className="flex gap-3">
-              <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 border rounded-2xl text-[13px] font-bold">Keep</button>
-              <button onClick={handleConfirmCancel} className="flex-1 py-3 bg-[#FF5252] text-white rounded-2xl text-[13px] font-bold">Cancel Request</button>
+              <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-400">Back</button>
+              <button onClick={handleConfirmCancel} className="flex-1 py-3 bg-[#FF5252] text-white rounded-2xl text-[13px] font-bold">Confirm Cancel</button>
             </div>
           </div>
         </div>
