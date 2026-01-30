@@ -158,9 +158,12 @@ export default function FullMap() {
       {/* Header */}
       <div className="w-full bg-[#F9F6F2] border-b border-gray-200/50 flex-shrink-0">
         <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
-          <h1 className="text-2xl font-bold tracking-tighter text-[#00AF91] cursor-pointer" onClick={() => navigate('/home')}>
-            Traba<span className="text-[#0B3B68]">Home</span>
-          </h1>
+          <img 
+            src="/assets/Logo.png"
+            alt="TrabaHome"
+            className="h-8 w-auto cursor-pointer"
+            onClick={() => navigate('/home')}
+          />
           <div className="p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"><BellIcon className="w-6 h-6 text-[#0B3B68]" /></div>
         </header>
       </div>
@@ -228,6 +231,7 @@ export default function FullMap() {
 
               {filteredWorkers.map((worker) => {
                 const pos = getMapPosition(worker.location, worker.id);
+                const pinColor = "#0B3B68";
                 return (
                   <div 
                     key={worker.id} 
@@ -235,21 +239,35 @@ export default function FullMap() {
                     style={{ 
                       top: pos.top, 
                       left: pos.left,
-                      transform: `translate(-50%, -50%) scale(${1/zoom})` 
+                      transform: `translate(-50%, -100%) scale(${1/zoom})` 
                     }}
                     onClick={(e) => {
                         e.stopPropagation();
                         handleIconClick(worker.location, worker.id);
                     }}
                   >
-                    <div className="group relative cursor-pointer">
-                        <div className="w-10 h-10 bg-[#0B3B68] rounded-full flex items-center justify-center shadow-xl border-2 border-white text-white">
+                    <div className="group relative cursor-pointer flex flex-col items-center">
+                        {/* PULSING EFFECT LAYER */}
+                        <div className="absolute inset-0 w-10 h-10 bg-[#0B3B68] rounded-full animate-ping opacity-20 group-hover:hidden"></div>
+                        
+                        {/* MAIN PIN BODY */}
+                        <div 
+                          className="w-10 h-10 rounded-full flex items-center justify-center shadow-xl border-2 border-white text-white z-10 transition-transform group-hover:scale-110"
+                          style={{ backgroundColor: pinColor }}
+                        >
                           {getRoleIcon(worker.role)}
                         </div>
-                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-[#0B3B68] absolute -bottom-1 left-1/2 transform -translate-x-1/2"></div>
-                        <div className="absolute top-1/2 left-full ml-3 -translate-y-1/2 bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow-md whitespace-nowrap border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
-                            <span className="block text-xs font-bold text-[#0B3B68]">{worker.name}</span>
-                            <span className="block text-[10px] text-gray-500">{worker.role}</span>
+                        
+                        {/* PIN BEAK */}
+                        <div 
+                          className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] -mt-[1px] transition-transform group-hover:scale-110"
+                          style={{ borderTopColor: pinColor }}
+                        ></div>
+
+                        {/* HOVER TOOLTIP */}
+                        <div className="absolute bottom-full mb-3 bg-[#0B3B68] text-white px-3 py-1.5 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-30 transform translate-y-2 group-hover:translate-y-0">
+                            <p className="text-xs font-bold leading-none">{worker.name}</p>
+                            <p className="text-[10px] opacity-70 mt-1">{worker.role} • {worker.rating}★</p>
                         </div>
                     </div>
                   </div>

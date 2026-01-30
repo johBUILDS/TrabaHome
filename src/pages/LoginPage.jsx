@@ -32,16 +32,11 @@ export default function LoginPage() {
         
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-6">
-          <div className="flex items-center gap-1 mb-4">
-            {/* Simple SVG Logo implementation to match image */}
-            <svg width="40" height="30" viewBox="0 0 50 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M25 5L5 20H10V35H20V25H30V35H40V20H45L25 5Z" fill="#00AF91" stroke="#00AF91" strokeWidth="2"/>
-                <path d="M15 12.5V5H20V8.75" stroke="#00AF91" strokeWidth="2"/>
-            </svg>
-            <h1 className="text-3xl font-bold text-[#00AF91]">
-              Traba<span className="text-[#00AF91]">Home</span>
-            </h1>
-          </div>
+          <img 
+            src="/assets/Logo.png"
+            alt="TrabaHome"
+            className="h-10 w-auto mb-4"
+          />
           
           <h2 className="text-[#0B3B68] text-2xl font-bold text-center">Welcome Back!</h2>
           <p className="text-[#0B3B68] text-[10px] text-center mt-1 opacity-80">
