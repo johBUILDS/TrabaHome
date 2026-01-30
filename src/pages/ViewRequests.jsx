@@ -14,6 +14,7 @@ export default function MyRequests() {
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isViewReviewModalOpen, setIsViewReviewModalOpen] = useState(false);
+  const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
   const [otherReason, setOtherReason] = useState("");
@@ -144,6 +145,7 @@ export default function MyRequests() {
       } : req
     ));
     setIsDetailModalOpen(false);
+    setIsCompleteConfirmOpen(false);
     setActiveTab("Completed");
   };
 
@@ -174,18 +176,20 @@ export default function MyRequests() {
 
   return (
     <div className="w-full min-h-screen bg-[#FDF8F4] text-[#0B3B68] font-sans flex flex-col">
-      <header className="w-full bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-           <h1 className="text-2xl font-bold tracking-tighter text-[#00AF91] cursor-pointer" onClick={() => navigate('/home')}>
-            Traba<span className="text-[#0B3B68]">Home</span>
-          </h1>
-          <BellIcon className="w-5 h-5 text-gray-700" />
-        </div>
+      <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
+        <img 
+          src="/assets/Logo.png"
+          alt="TrabaHome"
+          className="h-8 w-auto cursor-pointer"
+          onClick={() => navigate('/home')}
+        />
+        <div className="p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"><BellIcon className="w-6 h-6 text-[#0B3B68]" /></div>
       </header>
 
       <main className="flex-grow w-full max-w-4xl mx-auto px-6 py-10">
         <h2 className="text-2xl font-bold mb-6">My Requests</h2>
 
+        {/* Tab Navigation (Mirrored from image_7f09dd.png) */}
         <div className="flex bg-white rounded-lg shadow-sm mb-6 border border-gray-100 p-1 overflow-x-auto">
           {tabs.map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -197,61 +201,70 @@ export default function MyRequests() {
 
         <div className="space-y-4">
           {filteredRequests.map((req) => (
-            <div key={req.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-50 flex flex-col relative">
-              <div className="flex gap-4">
-                <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0">
-                  <img src={req.image} alt={req.workerName} className="w-full h-full object-cover rounded-xl" />
+            /* Card UI Mirrored from Screenshots */
+            <div key={req.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col relative transition-all hover:shadow-md">
+              <div className="flex gap-5">
+                <div className="w-24 h-24 flex-shrink-0">
+                  <img src={req.image} alt={req.workerName} className="w-full h-full object-cover rounded-xl shadow-sm" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-1 mb-1">
-                    <h3 className="text-lg font-bold">{req.workerName}</h3>
-                    <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <h3 className="text-lg font-bold text-[#0B3B68]">{req.workerName}</h3>
+                    <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full w-fit mb-2">
+                  
+                  {/* Category Badge */}
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-0.5 rounded-full w-fit mb-3">
                     <HammerIcon className="w-3 h-3" /> {req.role}
                   </div>
 
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter ${
+                  {/* Status & Message */}
+                  <div className="flex flex-col gap-1 mb-2">
+                    <span className={`text-[10px] font-black px-3 py-0.5 rounded-full uppercase tracking-tighter w-fit ${
                       req.status === 'Cancelled' || req.status === 'Declined' ? 'bg-[#FF9494] text-white' : 
                       (req.status === 'Accepted' || req.status === 'Completed' || req.status === 'Rated') ? 'bg-[#C6F6D5] text-[#2F855A]' : 
                       'bg-[#FFC107] text-white'
                     }`}>
                       {req.status === "Rated" ? "Completed" : req.status}
                     </span>
-                    <p className="text-[10px] text-gray-500 font-medium">
-                        {req.status === "Rated" ? `You rated ${req.userRating} stars` : req.statusMessage}
+                    <p className="text-[11px] text-gray-500 font-medium leading-relaxed max-w-[90%]">
+                        {req.status === "Rated" ? "Reviewed" : req.statusMessage}
                     </p>
                   </div>
 
-                  <div className="space-y-1 mt-1">
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400 font-semibold">
-                      <CalendarIcon className="w-3 h-3" /> 
-                      {req.status === 'Completed' || req.status === 'Rated' ? `Completed: ${req.completedAt || req.dateSent}` : 
-                       req.status === 'Accepted' ? `Accepted: ${req.acceptedAt}` : 
-                       req.status === 'Cancelled' ? `Cancelled: ${req.cancelledAt}` : 
-                       req.status === 'Declined' ? `Declined: ${req.declinedAt}` : `Sent: ${req.dateSent}`}
-                    </div>
+                  <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-semibold mt-2">
+                    <CalendarIcon className="w-3.5 h-3.5" /> 
+                    {req.status === 'Completed' || req.status === 'Rated' ? `Completed: ${req.completedAt || req.dateSent}` : 
+                     req.status === 'Accepted' ? `Accepted: ${req.acceptedAt}` : 
+                     req.status === 'Cancelled' ? `Cancelled: ${req.cancelledAt}` : 
+                     req.status === 'Declined' ? `Declined: ${req.declinedAt}` : `Sent: ${req.dateSent}`}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 mt-2">
-                <button onClick={() => { setSelectedRequestId(req.id); setIsDetailModalOpen(true); }} className="px-8 py-1.5 border border-[#0B3B68] text-[#0B3B68] rounded-full text-[11px] font-bold">View More</button>
+              {/* Action Buttons Mirrored Styling */}
+              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-50">
+                <button 
+                  onClick={() => { setSelectedRequestId(req.id); setIsDetailModalOpen(true); }} 
+                  className="px-8 py-2 border-2 border-[#0B3B68] text-[#0B3B68] rounded-full text-[11px] font-bold hover:bg-gray-50 transition-colors"
+                >
+                  View More
+                </button>
+                
                 {req.status === 'Rated' ? (
-                  <button onClick={() => { setSelectedRequestId(req.id); setIsViewReviewModalOpen(true); }} className="px-6 py-1.5 bg-[#00AF91] text-white rounded-full text-[11px] font-bold">View Review</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsViewReviewModalOpen(true); }} className="px-8 py-2 border-2 border-[#0B3B68] text-[#0B3B68] rounded-full text-[11px] font-bold">View Review</button>
                 ) : req.status === 'Completed' ? (
-                  <button onClick={() => { setSelectedRequestId(req.id); setIsRateModalOpen(true); }} className="px-10 py-1.5 bg-[#FF824D] text-white rounded-full text-[11px] font-bold">Rate</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsRateModalOpen(true); }} className="px-10 py-2 bg-[#FF824D] text-white rounded-full text-[11px] font-bold shadow-sm">Rate</button>
                 ) : req.status === 'Accepted' ? (
-                  <button onClick={() => handleMarkComplete(req.id)} className="px-6 py-1.5 bg-[#00AF91] text-white rounded-full text-[11px] font-bold">Mark as complete</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsCompleteConfirmOpen(true); }} className="px-8 py-2 bg-[#00AF91] text-white rounded-full text-[11px] font-bold shadow-sm">Mark as complete</button>
                 ) : req.status === 'Cancelled' ? (
-                  <button onClick={() => { setSelectedRequestId(req.id); setIsRequestAgainModalOpen(true); }} className="px-6 py-1.5 bg-[#0B3B68] text-white rounded-full text-[11px] font-bold">Request Again</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsRequestAgainModalOpen(true); }} className="px-8 py-2 bg-[#0B3B68] text-white rounded-full text-[11px] font-bold shadow-sm">Request Again</button>
                 ) : req.status === 'Declined' ? (
-                  <button onClick={() => navigate('/search')} className="px-6 py-1.5 bg-[#0B3B68] text-white rounded-full text-[11px] font-bold">Find Another Worker</button>
+                  <button onClick={() => navigate('/search')} className="px-8 py-2 bg-[#0B3B68] text-white rounded-full text-[11px] font-bold shadow-sm">Find Another Worker</button>
                 ) : (
-                  <button onClick={() => { setSelectedRequestId(req.id); setIsCancelModalOpen(true); }} className="px-6 py-1.5 border border-[#FF5252] text-[#FF5252] rounded-full text-[11px] font-bold">Cancel Request</button>
+                  <button onClick={() => { setSelectedRequestId(req.id); setIsCancelModalOpen(true); }} className="px-8 py-2 border-2 border-[#FF5252] text-[#FF5252] rounded-full text-[11px] font-bold hover:bg-red-50">Cancel Request</button>
                 )}
               </div>
             </div>
@@ -356,7 +369,6 @@ export default function MyRequests() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={handleCloseSuccess}></div>
           <div className="relative bg-white w-full max-w-[380px] rounded-2xl shadow-xl p-10 text-center">
             <button onClick={handleCloseSuccess} className="absolute top-4 right-4 text-gray-400">✕</button>
-            
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <span className="text-5xl">✨</span>
@@ -365,150 +377,152 @@ export default function MyRequests() {
                 </div>
               </div>
             </div>
-
             <h3 className="text-lg font-bold mb-2">Thank you for your feedback!</h3>
             <p className="text-[11px] text-gray-500 mb-8 leading-relaxed">
               Your review helps other homeowners find trusted workers.
             </p>
-
             <button 
               onClick={handleCloseSuccess}
               className="w-full py-3 bg-[#00AF91] text-white rounded-full text-xs font-bold uppercase tracking-wide mb-3"
             >
               Done
             </button>
-            <button className="text-[11px] text-[#0B3B68] font-bold underline">View Worker Profile</button>
+            <button 
+              onClick={() => {
+                handleCloseSuccess();
+                navigate('/search', { state: selectedRequest });
+              }} 
+              className="text-[11px] text-[#0B3B68] font-bold underline"
+            >
+              View Worker Profile
+            </button>
           </div>
         </div>
       )}
 
-      {/* --- MODAL: VIEW MORE --- */}
+      {/* --- MODAL: VIEW MORE (MIRRORED FROM SCREENSHOTS) --- */}
       {isDetailModalOpen && selectedRequest && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setIsDetailModalOpen(false)}></div>
-          <div className="relative bg-white w-full max-w-[420px] rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-              <h3 className="text-sm font-bold flex items-center gap-2">📄 Request Details</h3>
-              <button onClick={() => setIsDetailModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">✕</button>
+          <div className="relative bg-white w-full max-w-[380px] rounded-2xl shadow-xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-[13px] font-bold flex items-center gap-2">📄 Request Details</h3>
+              <button onClick={() => setIsDetailModalOpen(false)} className="text-gray-400">✕</button>
             </div>
 
             <div className="p-6 max-h-[85vh] overflow-y-auto">
-              {/* Profile Section */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-xl overflow-hidden shadow-sm border border-gray-100">
-                  <img src={selectedRequest.image} className="w-full h-full object-cover" alt={selectedRequest.workerName} />
+              {/* Profile Bar (Mirrored) */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                  <img src={selectedRequest.image} className="w-full h-full object-cover" alt="" />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold flex items-center gap-1.5">
-                    {selectedRequest.workerName} 
-                    <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="flex items-center gap-1">
+                    <h4 className="text-[14px] font-bold text-[#0B3B68]">{selectedRequest.workerName}</h4>
+                    <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
                       <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
                     </div>
-                  </h4>
-                  <div className="flex items-center gap-1 text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full w-fit mt-1">
+                  </div>
+                  <div className="flex items-center gap-1 text-[9px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full w-fit">
                     <HammerIcon className="w-2.5 h-2.5" /> {selectedRequest.role}
                   </div>
                 </div>
               </div>
 
-              {/* Info Grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">📍 Location</label>
-                  <p className="text-[11px] font-bold text-[#0B3B68]">{selectedRequest.location}</p>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">📅 Schedule</label>
-                  <p className="text-[11px] font-bold text-[#0B3B68]">{selectedRequest.schedule}</p>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 col-span-2">
-                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">✉️ Date Sent</label>
-                  <p className="text-[11px] font-bold text-[#0B3B68]">{selectedRequest.dateSent}</p>
-                </div>
-              </div>
-
-              {/* Status Banner */}
+              {/* Status Section */}
               <div className="mb-6">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                  Request Status:
-                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase ${
-                    selectedRequest.status === 'Declined' || selectedRequest.status === 'Cancelled' ? 'bg-[#FF9494] text-white' : 
-                    (selectedRequest.status === 'Accepted' || selectedRequest.status === 'Completed' || selectedRequest.status === 'Rated') ? 'bg-[#C6F6D5] text-[#2F855A]' : 
-                    'bg-[#FFC107] text-white'
-                  }`}>
-                    {selectedRequest.status === "Rated" ? "Completed" : selectedRequest.status}
-                  </span>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Status</span>
+                  <div className="flex items-center gap-1">
+                    <div className={`w-2 h-2 rounded-full ${
+                      selectedRequest.status === 'Declined' || selectedRequest.status === 'Cancelled' ? 'bg-[#FF9494]' : 
+                      (selectedRequest.status === 'Accepted' || selectedRequest.status === 'Completed' || selectedRequest.status === 'Rated') ? 'bg-[#2F855A]' : 
+                      'bg-[#FFC107]'
+                    }`}></div>
+                    <span className={`text-[11px] font-bold ${
+                      selectedRequest.status === 'Declined' || selectedRequest.status === 'Cancelled' ? 'text-[#FF5252]' : 
+                      (selectedRequest.status === 'Accepted' || selectedRequest.status === 'Completed' || selectedRequest.status === 'Rated') ? 'text-[#2F855A]' : 
+                      'text-[#FFC107]'
+                    }`}>
+                      {selectedRequest.status === "Rated" ? "Completed" : selectedRequest.status}
+                    </span>
+                  </div>
                 </div>
+                
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  {selectedRequest.statusMessage}
+                </p>
 
-                {selectedRequest.status === 'Declined' && (
-                  <div className="bg-red-50 p-4 rounded-xl border border-red-100">
-                     <p className="text-[10px] text-red-600 font-bold mb-1 flex items-center gap-1 uppercase">⚠️ Worker's Reason:</p>
-                     <p className="text-[12px] text-gray-700 font-medium leading-relaxed italic">
-                       "{selectedRequest.declineReason || "Sorry, I am currently unavailable for new bookings."}"
-                     </p>
+                {selectedRequest.status === 'Pending' && (
+                  <div className="flex gap-2 p-3 bg-gray-50 rounded-xl mt-3 border border-gray-100">
+                    <LockIcon className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    <p className="text-[10px] text-gray-400 italic leading-snug">{selectedRequest.subMessage}</p>
                   </div>
                 )}
-                
-                {(selectedRequest.status === 'Accepted' || selectedRequest.status === 'Completed' || selectedRequest.status === 'Rated') && (
-                  <div className="space-y-3 bg-[#0B3B68]/5 p-4 rounded-xl border border-[#0B3B68]/10">
-                    <p className="text-[10px] text-[#0B3B68] font-bold uppercase tracking-tight">Worker Contact Details</p>
-                    <div className="grid grid-cols-1 gap-2.5">
-                      <div className="flex items-center gap-3 text-[12px] text-gray-700 font-medium">
-                        <span className="w-6 h-6 bg-white shadow-sm text-blue-500 rounded flex items-center justify-center text-[10px]">✉️</span>
-                        {selectedRequest.email || "N/A"}
-                      </div>
-                      <div className="flex items-center gap-3 text-[12px] text-gray-700 font-medium">
-                        <span className="w-6 h-6 bg-white shadow-sm text-blue-600 rounded flex items-center justify-center text-[10px]">👤</span>
-                        {selectedRequest.facebook || "N/A"}
-                      </div>
-                      <div className="flex items-center gap-3 text-[12px] text-gray-700 font-medium">
-                        <span className="w-6 h-6 bg-white shadow-sm text-green-500 rounded flex items-center justify-center text-[10px]">📞</span>
-                        {selectedRequest.phone || "N/A"}
-                      </div>
+              </div>
+
+              {/* Contact Information (Image_7f09bf.png & image_7f099d.png) */}
+              {(selectedRequest.status === 'Accepted' || selectedRequest.status === 'Completed' || selectedRequest.status === 'Rated') && (
+                <div className="mb-6 space-y-2 border-t border-gray-100 pt-4">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Contact Information:</p>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-[11px] text-gray-700">
+                      <span className="text-blue-500">✉️</span> {selectedRequest.email}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-gray-700">
+                      <span className="text-blue-600 font-bold">f</span> {selectedRequest.facebook}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-gray-700">
+                      <span className="text-green-500">📞</span> {selectedRequest.phone}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Description */}
-              <div className="space-y-5">
+              {/* Content Fields */}
+              <div className="space-y-5 border-t border-gray-100 pt-4">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Problem Description</label>
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 text-[12px] text-gray-700 leading-relaxed shadow-sm italic">
+                  <label className="text-[11px] font-bold text-[#0B3B68] block mb-2">Problem Description</label>
+                  <div className="bg-[#EFEFEF] rounded-xl p-4 text-[11px] text-gray-600 italic min-h-[80px]">
                     "{selectedRequest.description}"
                   </div>
                 </div>
 
-                {selectedRequest.status === "Rated" && (
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Your Review</label>
-                    <div className="bg-[#C6F6D5]/10 border border-[#C6F6D5]/40 rounded-xl p-4 text-[12px] text-gray-700">
-                        <div className="text-amber-400 mb-2 flex gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                                <span key={i}>{i < selectedRequest.userRating ? "★" : "☆"}</span>
-                            ))}
-                        </div>
-                        <span className="italic">"{selectedRequest.userReview}"</span>
-                    </div>
+                    <label className="text-[11px] font-bold text-[#0B3B68] block mb-0.5">Preferred Schedule</label>
+                    <p className="text-[11px] text-gray-500 italic">{selectedRequest.schedule}</p>
                   </div>
-                )}
+                  <div>
+                    <label className="text-[11px] font-bold text-[#0B3B68] block mb-0.5">Location</label>
+                    <p className="text-[11px] text-gray-500">{selectedRequest.location}</p>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-[#0B3B68] block mb-0.5">
+                      {selectedRequest.status === 'Declined' ? 'Declined On' : selectedRequest.status === 'Cancelled' ? 'Cancelled On' : selectedRequest.status === 'Accepted' ? 'Accepted On' : 'Sent On'}
+                    </label>
+                    <p className="text-[11px] text-gray-500">
+                      {selectedRequest.status === 'Declined' ? selectedRequest.declinedAt : selectedRequest.status === 'Cancelled' ? selectedRequest.cancelledAt : selectedRequest.dateSent}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Footer Actions */}
+              {/* Action Buttons (Mirrored colors from screenshots) */}
               <div className="mt-8">
                 {selectedRequest.status === 'Rated' ? (
-                  <button onClick={() => setIsDetailModalOpen(false)} className="w-full py-3.5 bg-[#0B3B68] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Done</button>
+                   <button onClick={() => setIsDetailModalOpen(false)} className="w-full py-3 bg-[#0B3B68] text-white rounded-full text-[12px] font-bold shadow-sm">Done</button>
                 ) : selectedRequest.status === 'Completed' ? (
-                  <button onClick={() => { setIsDetailModalOpen(false); setIsRateModalOpen(true); }} className="w-full py-3.5 bg-[#FF824D] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Rate Service</button>
+                  <button onClick={() => { setIsDetailModalOpen(false); setIsRateModalOpen(true); }} className="w-full py-3 bg-[#FF824D] text-white rounded-full text-[12px] font-bold shadow-sm">Rate</button>
                 ) : selectedRequest.status === 'Accepted' ? (
-                  <button onClick={() => handleMarkComplete(selectedRequest.id)} className="w-full py-3.5 bg-[#00AF91] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-md hover:brightness-110 transition-all">Mark as complete</button>
+                  <button onClick={() => { setIsCompleteConfirmOpen(true); setIsDetailModalOpen(false); }} className="w-full py-3 bg-[#00AF91] text-white rounded-full text-[12px] font-bold shadow-sm">Mark as complete</button>
                 ) : selectedRequest.status === 'Declined' ? (
-                  <button onClick={() => { setIsDetailModalOpen(false); navigate('/search'); }} className="w-full py-3.5 bg-[#0B3B68] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-lg hover:bg-[#00AF91] transition-all">Find Another Worker</button>
+                  <button onClick={() => { setIsDetailModalOpen(false); navigate('/search'); }} className="w-full py-3 bg-[#0B3B68] text-white rounded-full text-[12px] font-bold shadow-sm">Find Another Worker</button>
                 ) : selectedRequest.status === 'Cancelled' ? (
-                  <button onClick={() => { setIsDetailModalOpen(false); setIsRequestAgainModalOpen(true); }} className="w-full py-3.5 bg-[#0B3B68] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-lg transition-all">Request Again</button>
+                  <button onClick={() => { setIsDetailModalOpen(false); setIsRequestAgainModalOpen(true); }} className="w-full py-3 bg-[#0B3B68] text-white rounded-full text-[12px] font-bold shadow-sm">Request Again</button>
                 ) : (
-                  <button onClick={() => { setIsDetailModalOpen(false); setIsCancelModalOpen(true); }} className="w-full py-3.5 border-2 border-[#FF5252] text-[#FF5252] rounded-2xl text-[13px] font-black uppercase tracking-widest hover:bg-red-50 transition-all">Cancel Request</button>
+                  <button onClick={() => { setIsDetailModalOpen(false); setIsCancelModalOpen(true); }} className="w-full py-2.5 border-2 border-[#FF5252] text-[#FF5252] rounded-full text-[12px] font-bold uppercase hover:bg-red-50 transition-colors">Cancel Request</button>
                 )}
               </div>
             </div>
@@ -516,7 +530,23 @@ export default function MyRequests() {
         </div>
       )}
 
-      {/* --- OTHER MODALS --- */}
+      {/* --- MODAL: MARK AS COMPLETE CONFIRMATION --- */}
+      {isCompleteConfirmOpen && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setIsCompleteConfirmOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[340px] rounded-3xl shadow-2xl p-8 text-center">
+            <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">✅</div>
+            <h3 className="text-lg font-bold">Complete Service?</h3>
+            <p className="text-[12px] text-gray-500 mt-2 mb-8">Has the worker finished the job? This will move the request to your completed list.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setIsCompleteConfirmOpen(false)} className="flex-1 py-3 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-400">Not yet</button>
+              <button onClick={() => handleMarkComplete(selectedRequestId)} className="flex-1 py-3 bg-[#00AF91] text-white rounded-2xl text-[13px] font-bold shadow-lg shadow-green-100">Yes, Complete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: REQUEST AGAIN --- */}
       {isRequestAgainModalOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setIsRequestAgainModalOpen(false)}></div>
@@ -532,6 +562,7 @@ export default function MyRequests() {
         </div>
       )}
 
+      {/* --- MODAL: CANCEL REQUEST --- */}
       {isCancelModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" onClick={() => setIsCancelModalOpen(false)}></div>
@@ -541,23 +572,22 @@ export default function MyRequests() {
             <p className="text-[12px] text-gray-500 mt-2 mb-6 text-left">This will notify the worker and remove your request from their list.</p>
             <div className="space-y-3 mb-4 text-left">
               {["Found another worker", "No longer needed", "Worker took too long to respond", "Other (state reason)"].map((reason) => (
-                <label key={reason} className="flex items-center gap-3 cursor-pointer">
-                  <input type="radio" name="cancelReason" className="accent-[#FF5252]" onChange={() => setCancelReason(reason)} />
-                  <span className="text-[12px] text-gray-600 font-medium">{reason}</span>
+                <label key={reason} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer">
+                  <input type="radio" name="reason" className="accent-[#FF5252]" onChange={() => setCancelReason(reason)} />
+                  <span className="text-[12px] font-medium">{reason}</span>
                 </label>
               ))}
             </div>
             {cancelReason === "Other (state reason)" && (
-               <textarea 
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs mb-4 focus:outline-[#FF5252]" 
-                  placeholder="Tell us why..."
-                  value={otherReason}
-                  onChange={(e) => setOtherReason(e.target.value)}
-               />
+              <textarea 
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[12px] mb-4 focus:outline-none"
+                placeholder="Please state your reason..."
+                onChange={(e) => setOtherReason(e.target.value)}
+              />
             )}
             <div className="flex gap-3">
-              <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 border rounded-2xl text-[13px] font-bold">Keep</button>
-              <button onClick={handleConfirmCancel} className="flex-1 py-3 bg-[#FF5252] text-white rounded-2xl text-[13px] font-bold">Cancel Request</button>
+              <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-400">Back</button>
+              <button onClick={handleConfirmCancel} className="flex-1 py-3 bg-[#FF5252] text-white rounded-2xl text-[13px] font-bold">Confirm Cancel</button>
             </div>
           </div>
         </div>

@@ -35,19 +35,11 @@ export default function SignUp() {
 
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-4 mt-2">
-          {/* Logo Icon and Text */}
-          <div className="flex flex-col items-center">
-             <div className="text-[#00BFA5] mb-[-8px]">
-                <svg width="45" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-             </div>
-             <h1 className="text-[32px] font-bold tracking-tight">
-                <span className="text-[#00BFA5]">Traba</span>
-                <span className="text-[#004A8C]">home</span>
-             </h1>
-          </div>
+          <img 
+            src="/assets/Logo.png"
+            alt="TrabaHome"
+            className="h-12 w-auto"
+          />
         </div>
 
         {/* Header Text */}

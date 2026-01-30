@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { 
   BellIcon, HammerIcon, MapPinIcon, ChevronDownIcon, 
   StarIcon, ShieldCheckIcon, TrowelIcon, DropletIcon, 
-  ZapIcon, BrushIcon, SproutIcon, WrenchIcon 
+  ZapIcon, BrushIcon, SproutIcon, WrenchIcon, XIcon, SearchIcon, LockIcon
 } from "../Icons";
 
 export default function WorkerProfile() {
@@ -13,9 +13,9 @@ export default function WorkerProfile() {
 
   // --- STATES ---
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSuccessOpen, setIsSuccessOpen] = useState(false); // New Success State
-  const [isAlertOpen, setIsAlertOpen] = useState(false); // New Alert Modal State
-  const [alertMessage, setAlertMessage] = useState(""); // New Alert Message State
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false); 
+  const [isAlertOpen, setIsAlertOpen] = useState(false); 
+  const [alertMessage, setAlertMessage] = useState(""); 
   const [requestDescription, setRequestDescription] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
@@ -46,7 +46,6 @@ export default function WorkerProfile() {
 
   const worker = workers.find(w => w.id === parseInt(id));
 
-  // --- DROPDOWN STATES ---
   const [selectedRole, setSelectedRole] = useState(worker?.role || "");
   const [selectedLocation, setSelectedLocation] = useState(worker?.location || "");
   const [isRoleOpen, setIsRoleOpen] = useState(false);
@@ -74,28 +73,23 @@ export default function WorkerProfile() {
     navigate(`/search?service=${selectedRole}&location=${selectedLocation}`);
   };
 
-  // --- NEW VALIDATION LOGIC ---
   const handleSendRequest = () => {
     if (!preferredDate) {
       setAlertMessage("Please select a date for the service.");
       setIsAlertOpen(true);
       return;
     }
-
     const selected = new Date(preferredDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize today to midnight
-
+    today.setHours(0, 0, 0, 0); 
     const oneYearFromNow = new Date(today);
     oneYearFromNow.setFullYear(today.getFullYear() + 1);
 
-    // Exact date (today) or following days
     if (selected < today) {
       setAlertMessage("Invalid Date: You cannot select a date in the past.");
       setIsAlertOpen(true);
       return;
     }
-    
     if (selected > oneYearFromNow) {
       setAlertMessage("Invalid Date: You cannot schedule more than 1 year in advance.");
       setIsAlertOpen(true);
@@ -127,71 +121,79 @@ export default function WorkerProfile() {
   };
 
   return (
-    <div className={`w-full min-h-screen bg-[#F9F6F2] text-[#0B3B68] font-sans flex flex-col relative ${isModalOpen || isSuccessOpen || isAlertOpen ? 'overflow-hidden' : ''}`}>
+    <div className={`w-full min-h-screen bg-[#F9F6F2] text-[#0B3B68] font-sans flex flex-col relative animate-in fade-in duration-700 ${isModalOpen || isSuccessOpen || isAlertOpen ? 'overflow-hidden' : ''}`}>
       {/* HEADER */}
-      <div className="w-full bg-[#F9F6F2] border-b border-gray-200/50 flex-shrink-0">
+      <div className="w-full bg-[#F9F6F2] border-b border-gray-200/50 flex-shrink-0 sticky top-0 z-[60] backdrop-blur-md">
         <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
-          <h1 className="text-2xl font-bold tracking-tighter text-[#00AF91] cursor-pointer" onClick={() => navigate('/home')}>
-            Traba<span className="text-[#0B3B68]">Home</span>
-          </h1>
-          <div className="p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"><BellIcon className="w-6 h-6 text-[#0B3B68]" /></div>
+          <img 
+            src="/assets/Logo.png"
+            alt="TrabaHome"
+            className="h-8 w-auto cursor-pointer hover:opacity-80 transition-all active:scale-95"
+            onClick={() => navigate('/home')}
+          />
+          <div className="p-2 rounded-full hover:bg-black/5 transition-all cursor-pointer active:scale-90 group">
+            <BellIcon className="w-6 h-6 text-[#0B3B68] group-hover:rotate-12 transition-transform" />
+          </div>
         </header>
       </div>
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-2xl font-bold mb-6">Search Results</h2>
+        <h2 className="text-2xl font-bold mb-6 animate-in slide-in-from-left duration-500">Search Results</h2>
         
         {/* DYNAMIC SEARCH BAR */}
-        <div ref={searchRef} className="bg-white p-2 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 mb-10 border border-gray-100 items-center relative z-50">
+        <div ref={searchRef} className="bg-white p-2 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 mb-10 border border-gray-100 items-center relative z-50 transition-all hover:shadow-xl hover:-translate-y-1 duration-500 animate-in zoom-in-95">
           <div className="flex-1 relative w-full">
-            <div onClick={() => { setIsRoleOpen(!isRoleOpen); setIsLocationOpen(false); }} className="flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-[#00AF91] transition-all">
+            <div onClick={() => { setIsRoleOpen(!isRoleOpen); setIsLocationOpen(false); }} className="flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-[#00AF91] transition-all focus-within:ring-4 focus-within:ring-[#00AF91]/10">
               <span className="text-[#0B3B68] mr-3">{getRoleIcon(selectedRole)}</span>
               <div className="flex-grow text-[#0B3B68] font-bold">{selectedRole}</div>
-              <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${isRoleOpen ? 'rotate-180' : ''}`} />
+              <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isRoleOpen ? 'rotate-180' : ''}`} />
             </div>
             {isRoleOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-[60]">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-2xl overflow-hidden z-[60] animate-in slide-in-from-top-2 duration-300">
                 {roles.map((r) => (
-                  <div key={r} onClick={() => { setSelectedRole(r); setIsRoleOpen(false); }} className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-semibold border-b border-gray-50 last:border-0">{r}</div>
+                  <div key={r} onClick={() => { setSelectedRole(r); setIsRoleOpen(false); }} className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold border-b border-gray-50 last:border-0 transition-colors">{r}</div>
                 ))}
               </div>
             )}
           </div>
 
           <div className="flex-1 relative w-full">
-            <div onClick={() => { setIsLocationOpen(!isLocationOpen); setIsRoleOpen(false); }} className="flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-[#00AF91] transition-all">
+            <div onClick={() => { setIsLocationOpen(!isLocationOpen); setIsRoleOpen(false); }} className="flex items-center px-4 py-2 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-[#00AF91] transition-all focus-within:ring-4 focus-within:ring-[#00AF91]/10">
               <MapPinIcon className="w-5 h-5 text-[#0B3B68] mr-3" />
               <div className="flex-grow text-[#0B3B68] font-bold">{selectedLocation}, Pangasinan</div>
-              <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform ${isLocationOpen ? 'rotate-180' : ''}`} />
+              <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`} />
             </div>
             {isLocationOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-[60]">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-2xl overflow-hidden z-[60] animate-in slide-in-from-top-2 duration-300">
                 {locations.map((l) => (
-                  <div key={l} onClick={() => { setSelectedLocation(l); setIsLocationOpen(false); }} className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-semibold border-b border-gray-50 last:border-0">{l}</div>
+                  <div key={l} onClick={() => { setSelectedLocation(l); setIsLocationOpen(false); }} className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm font-semibold border-b border-gray-50 last:border-0 transition-colors">{l}</div>
                 ))}
               </div>
             )}
           </div>
 
-          <button onClick={handleSearch} className="bg-[#0B3B68] text-white px-8 py-2 rounded-xl font-bold hover:bg-[#154875] min-w-[120px] transition-colors">Search</button>
+          <button onClick={handleSearch} className="bg-[#0B3B68] text-white px-8 py-2 rounded-xl font-bold hover:bg-[#154875] min-w-[120px] transition-all active:scale-95 shadow-md">Search</button>
         </div>
 
-        <h3 className="text-xl font-bold mb-8">{worker.role}s near <span className="text-[#00AF91]">{worker.location}, Pangasinan</span></h3>
+        <h3 className="text-xl font-bold mb-8 animate-in slide-in-from-left duration-700">
+            {worker.role}s near <span className="text-[#00AF91]">{worker.location}, Pangasinan</span>
+        </h3>
 
         {/* MAIN WORKER CARD */}
-        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 flex flex-col mb-12">
+        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 flex flex-col mb-12 animate-in slide-in-from-bottom duration-1000">
           <div className="flex flex-col md:flex-row gap-10 mb-8">
-            <div className="w-full md:w-[350px] h-[350px] flex-shrink-0">
-              <img src={worker.image} alt={worker.name} className="w-full h-full object-cover rounded-2xl shadow-inner" />
+            <div className="w-full md:w-[350px] h-[350px] flex-shrink-0 overflow-hidden rounded-2xl group relative">
+              <img src={worker.image} alt={worker.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-500" />
             </div>
             
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col justify-center">
               <div className="flex items-center gap-2 mb-2">
                 <h1 className="text-4xl font-bold text-[#0B3B68]">{worker.name}</h1>
-                <ShieldCheckIcon className="w-6 h-6 text-blue-500 mt-1" />
+                <ShieldCheckIcon className="w-6 h-6 text-blue-500 mt-1 animate-pulse" />
               </div>
               <div className="mb-4 flex items-center gap-2">
-                <span className="bg-blue-50 text-[#0B3B68] px-4 py-1.5 rounded-full text-sm font-bold border border-blue-100 flex items-center gap-2">
+                <span className="bg-blue-50 text-[#0B3B68] px-4 py-1.5 rounded-full text-sm font-bold border border-blue-100 flex items-center gap-2 hover:bg-[#0B3B68] hover:text-white transition-all duration-500">
                   {getRoleIcon(worker.role)} {worker.role}
                 </span>
               </div>
@@ -200,10 +202,10 @@ export default function WorkerProfile() {
               </div>
               <div className="flex items-center text-[#0B3B68] text-sm font-bold mb-6">
                 <StarIcon className="w-5 h-5 text-yellow-500 mr-1" />
-                {worker.rating} | {worker.reviews} Ratings <span className="text-[#00AF91] ml-2 cursor-pointer hover:underline">(See Reviews)</span>
+                {worker.rating} | {worker.reviews} Ratings <span className="text-[#00AF91] ml-2 cursor-pointer hover:underline transition-all">(See Reviews)</span>
               </div>
               <p className="text-gray-600 leading-relaxed mb-10 max-w-md italic">"{worker.bio}"</p>
-              <button onClick={() => setIsModalOpen(true)} className="bg-[#00AF91] text-white py-3.5 rounded-full font-bold text-lg hover:bg-[#009b80] shadow-md w-full md:w-[400px]">Request Service</button>
+              <button onClick={() => setIsModalOpen(true)} className="bg-[#00AF91] text-white py-3.5 rounded-full font-bold text-lg hover:bg-[#009b80] hover:shadow-lg hover:shadow-[#00AF91]/30 transition-all active:scale-95 shadow-md w-full md:w-[400px]">Request Service</button>
             </div>
           </div>
 
@@ -211,8 +213,9 @@ export default function WorkerProfile() {
             <h4 className="text-lg font-bold mb-6 uppercase tracking-wider text-[#0B3B68]/70">Proof of Work</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {worker.proofOfWork.map((img, idx) => (
-                <div key={idx} className="aspect-square rounded-2xl overflow-hidden bg-gray-200 shadow-sm border border-gray-100">
-                  <img src={img} alt="work example" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                <div key={idx} className="aspect-square rounded-2xl overflow-hidden bg-gray-200 shadow-sm border border-gray-100 group relative">
+                  <img src={img} alt="work example" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500" />
                 </div>
               ))}
             </div>
@@ -223,89 +226,97 @@ export default function WorkerProfile() {
         <section className="mb-20">
           <h4 className="text-lg font-bold mb-6 uppercase tracking-wider text-[#0B3B68]/70">Also Available {worker.role}s Nearby</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {nearbyWorkers.length > 0 ? nearbyWorkers.map((nearby) => (
-              <div key={nearby.id} className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                <img src={nearby.image} alt={nearby.name} className="w-full aspect-square rounded-2xl object-cover mb-4 shadow-sm" />
+            {nearbyWorkers.length > 0 ? nearbyWorkers.map((nearby, idx) => (
+              <div key={nearby.id} 
+                className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 animate-in slide-in-from-bottom duration-700"
+                style={{ animationDelay: `${idx * 150}ms`, animationFillMode: 'both' }}
+              >
+                <div className="w-full aspect-square rounded-2xl overflow-hidden mb-4 shadow-sm group">
+                    <img src={nearby.image} alt={nearby.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                </div>
                 <h5 className="text-lg font-bold">{nearby.name}</h5>
                 <p className="text-sm text-[#00AF91] font-bold mb-4">{nearby.location}</p>
-                <button onClick={() => navigate(`/profile/${nearby.id}`)} className="w-full border border-gray-200 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">View Profile</button>
+                <button onClick={() => navigate(`/profile/${nearby.id}`)} className="w-full border-2 border-gray-100 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-[#0B3B68] hover:text-white hover:border-[#0B3B68] transition-all duration-300 active:scale-95">View Profile</button>
               </div>
             )) : <div className="col-span-3 text-center py-10 text-gray-400">No other {worker.role}s found.</div>}
           </div>
         </section>
       </main>
 
-      {/* --- INPUT MODAL --- */}
+      {/* --- MODALS (Consistent Animations) --- */}
+      
+      {/* INPUT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setIsModalOpen(false)}></div>
-          <div className="relative bg-white w-full max-w-[500px] rounded-xl shadow-xl p-8 border border-blue-400">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-            <h2 className="text-xl font-bold text-[#111] mb-6">What do you need help with?</h2>
-            <div className="bg-[#EFEFEF] rounded-lg p-4 mb-6">
-              <textarea placeholder="describe your problem.." className="w-full h-48 bg-transparent border-none resize-none focus:outline-none text-gray-600 placeholder-gray-400 italic" value={requestDescription} onChange={(e) => setRequestDescription(e.target.value)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsModalOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[500px] rounded-2xl shadow-2xl p-8 border border-gray-100 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors active:scale-90">
+                <XIcon className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-[#111] mb-2">Request Service</h2>
+            <p className="text-gray-500 mb-6 text-sm">Fill in details for <span className="text-[#00AF91] font-bold">{worker.name}</span></p>
+            
+            <div className="bg-[#F3F4F6] rounded-xl p-4 mb-6 ring-1 ring-gray-100 focus-within:ring-[#00AF91] transition-all">
+              <textarea 
+                placeholder="Describe your project or the problem you're facing..." 
+                className="w-full h-40 bg-transparent border-none resize-none focus:outline-none text-gray-600 placeholder-gray-400 italic text-sm leading-relaxed" 
+                value={requestDescription} 
+                onChange={(e) => setRequestDescription(e.target.value)} 
+              />
             </div>
+
             <div className="grid grid-cols-2 gap-6 mb-8">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[#111]">Preferred date <span className="text-gray-400 font-normal">(required)</span></label>
-                <input type="date" className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-500" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} />
+                <input type="date" className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 focus:border-[#00AF91] outline-none transition-colors bg-white shadow-sm" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-[#111]">Preferred time <span className="text-gray-400 font-normal">(optional)</span></label>
-                <input type="time" className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-500" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} />
+                <input type="time" className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 focus:border-[#00AF91] outline-none transition-colors bg-white shadow-sm" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} />
               </div>
             </div>
-            <button className="w-full bg-[#00AF91] text-white py-3.5 rounded-full font-bold text-lg" onClick={handleSendRequest}>Send Request</button>
-            <div className="flex gap-2 items-start text-[11px] text-gray-500 mt-4 italic">🔒 contact details shared after acceptance.</div>
+
+            <button className="w-full bg-[#00AF91] text-white py-3.5 rounded-full font-bold text-lg hover:bg-[#009b80] transition-all active:scale-[0.98] shadow-md shadow-[#00AF91]/20 flex items-center justify-center gap-2 group" onClick={handleSendRequest}>
+              Send Request <SearchIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <div className="flex gap-2 items-start text-[11px] text-gray-500 mt-4 italic">
+                <LockIcon className="w-3 h-3 mt-0.5" /> Security Tip: Contact details shared after worker confirms availability.
+            </div>
           </div>
         </div>
       )}
 
-      {/* --- CUSTOM ALERT MODAL --- */}
+      {/* ALERT MODAL */}
       {isAlertOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={() => setIsAlertOpen(false)}></div>
-          <div className="relative bg-white w-full max-w-[320px] rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center">
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-200" onClick={() => setIsAlertOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[320px] rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center animate-in zoom-in-90 duration-300">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4 animate-bounce">
+              <LockIcon className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Wait a moment</h3>
-            <p className="text-sm text-gray-500 mb-6">{alertMessage}</p>
-            <button 
-              className="w-full bg-[#0B3B68] text-white py-2.5 rounded-xl font-bold text-sm hover:bg-[#154875]"
-              onClick={() => setIsAlertOpen(false)}
-            >
-              Okay, I'll check
-            </button>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">{alertMessage}</p>
+            <button className="w-full bg-[#0B3B68] text-white py-2.5 rounded-xl font-bold text-sm hover:bg-[#154875] transition-all active:scale-95 shadow-lg shadow-blue-900/10" onClick={() => setIsAlertOpen(false)}>Okay, I'll check</button>
           </div>
         </div>
       )}
 
-      {/* --- SUCCESS MODAL --- */}
+      {/* SUCCESS MODAL */}
       {isSuccessOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setIsSuccessOpen(false)}></div>
-          <div className="relative bg-white w-full max-w-[340px] rounded-[10px] shadow-2xl p-10 flex flex-col items-center text-center">
-            <button onClick={() => setIsSuccessOpen(false)} className="absolute top-4 right-4 text-gray-300 hover:text-gray-500"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg></button>
-            <div className="w-10 h-10 bg-[#4CAF50] rounded-full flex items-center justify-center mb-4"><svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[4px] animate-in fade-in duration-500" onClick={() => setIsSuccessOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[340px] rounded-2xl shadow-2xl p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-500">
+            <button onClick={() => setIsSuccessOpen(false)} className="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors active:scale-90"><XIcon className="w-4 h-4" /></button>
+            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mb-4 animate-in slide-in-from-bottom-2 duration-700">
+              <ShieldCheckIcon className="w-8 h-8 text-green-600" />
+            </div>
             <h2 className="text-[22px] font-bold text-[#111] mb-2">Request Sent!</h2>
             <p className="text-gray-600 text-[12px] mb-8 leading-relaxed">We've notified the worker via SMS. You'll be updated once they accept.</p>
-            <button 
-              className="w-full bg-[#003C71] text-white py-3 rounded-[30px] font-bold text-sm hover:bg-[#002a50]" 
+            <button className="w-full bg-[#003C71] text-white py-3 rounded-[30px] font-bold text-sm hover:bg-[#002a50] transition-all active:scale-95 shadow-lg shadow-blue-900/10" 
               onClick={() => {
                 setIsSuccessOpen(false);
-                navigate('/my-requests', { 
-                  state: { 
-                    workerName: worker.name,
-                    role: worker.role,
-                    description: requestDescription,
-                    date: preferredDate,
-                    time: preferredTime,
-                    image: worker.image
-                  } 
-                });
+                navigate('/my-requests', { state: { workerName: worker.name, role: worker.role, description: requestDescription, date: preferredDate, time: preferredTime, image: worker.image, status: "Pending" } });
               }}
             >
               View My Requests
@@ -314,8 +325,12 @@ export default function WorkerProfile() {
         </div>
       )}
 
-      <footer className="w-full bg-[#0B3B68] h-32 mt-auto flex items-center justify-center">
-        <p className="text-white/60 text-sm">© 2026 TrabaHome. All rights reserved.</p>
+      <footer className="flex-shrink-0 w-full bg-[#0B3B68] h-40 mt-auto relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent animate-pulse duration-[4000ms]"></div>
+        <div className="flex flex-col items-center gap-2 relative z-10">
+            <h2 className="text-white/40 font-black tracking-[0.2em] text-xs uppercase">TrabaHome</h2>
+            <p className="text-white/40 text-[10px]">© 2026 Professional Services Platform. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );

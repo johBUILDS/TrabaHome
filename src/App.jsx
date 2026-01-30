@@ -1,7 +1,9 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
+import WorkerLoginPage from "./pages/WorkerLoginPage";
 import Home from "./pages/Home";
 import SearchResult from "./pages/SearchResult"; 
 import WorkerList from "./pages/WorkerList";      
@@ -9,26 +11,50 @@ import FullMap from "./pages/FullMap";
 import WorkerProfile from "./pages/WorkerProfile";
 import ViewRequests from "./pages/ViewRequests";
 
+// Worker Pages - Ensure folder name "workerpages" matches your file tree exactly
+import HomeWorker from "./workerpages/HomeWorker";
+import WorkersJobs from "./workerpages/WorkersJobs"; 
+import WorkerOwnProfile from "./workerpages/WorkerOwnProfile"; 
+
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Auth Routes */}
-        <Route path="/" element={<LoginPage />} />
+        {/* Landing Page - Role Selection */}
+        <Route path="/" element={<LandingPage />} />
+        
+        {/* Homeowner Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/home" element={<Home />} />
         
+        {/* Worker Auth Routes */}
+        <Route path="/worker-login" element={<WorkerLoginPage />} />
+        
+        {/* Homeowner Home Route */}
+        <Route path="/home" element={<Home />} />
+
+        {/* Worker Dashboard/Home Route */}
+        <Route path="/HomeWorker" element={<HomeWorker />} />
+
+        {/* Route for WorkersJobs */}
+        <Route path="/worker-jobs" element={<WorkersJobs />} />
+
+        {/* Route for Worker's own Profile */}
+        <Route path="/worker-profile" element={<WorkerOwnProfile />} />
+
         {/* Search & Navigation Routes */}
         <Route path="/search" element={<SearchResult />} /> 
         <Route path="/list" element={<WorkerList />} />      
         <Route path="/map" element={<FullMap />} />          
         
-        {/* Profile Route */}
+        {/* Profile Route (Homeowner viewing a worker) */}
         <Route path="/profile/:id" element={<WorkerProfile />} />
 
-        {/* 2. Add the Requests Route */}
+        {/* Requests Route */}
         <Route path="/my-requests" element={<ViewRequests />} />
+
+        {/* Fallback: Redirect to landing page if path doesn't exist to avoid blank screen */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
