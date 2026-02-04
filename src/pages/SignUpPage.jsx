@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Added Link here
+import { useNavigate, Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; // Import Icons
 
 export default function SignUp() {
   const navigate = useNavigate();
   
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,28 +25,21 @@ export default function SignUp() {
 
   const validate = () => {
     let newErrors = {};
-
-    // Name Validation
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-
-    // Email Validation (Professional Regex)
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) newErrors.email = "Enter a valid email address";
 
-    // Mobile Number (PH Format: 9XXXXXXXXX)
     const mobileRegex = /^9\d{9}$/;
     if (!mobileRegex.test(formData.mobileNumber)) {
       newErrors.mobileNumber = "Enter a valid 10-digit number (e.g., 9123456789)";
     }
 
-    // Location
     if (!formData.city) newErrors.city = "Please select a city";
     if (!formData.barangay) newErrors.barangay = "Please select a barangay";
 
-    // Updated Password Validation: 8 chars, 1 Capital, 1 Number, 1 Special Char
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
     if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
     } else if (!passwordRegex.test(formData.password)) {
@@ -53,7 +50,6 @@ export default function SignUp() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    // Checkboxes
     if (!formData.agreeTerms || !formData.agreePrivacy) {
       newErrors.checkboxes = "You must agree to both Terms and Privacy Policy";
     }
@@ -68,7 +64,6 @@ export default function SignUp() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear error when user starts typing
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -89,14 +84,9 @@ export default function SignUp() {
     <div className="min-h-screen w-full bg-[#F9F6F2] flex items-center justify-center p-6 font-sans">
       <div className="bg-white w-full max-w-[450px] rounded-[30px] shadow-sm p-10 flex flex-col items-center">
         
-        {/* Logo Section - Wrapped in Link */}
         <div className="flex flex-col items-center mb-4">
           <Link to="/" className="transition-opacity hover:opacity-80 active:scale-95">
-            <img 
-              src="/assets/Logo.png" 
-              alt="TrabaHome" 
-              className="h-12 w-auto" // Adjust height as needed
-            />
+            <img src="/assets/Logo.png" alt="TrabaHome" className="h-12 w-auto" />
           </Link>
         </div>
 
@@ -104,7 +94,6 @@ export default function SignUp() {
         
         <form onSubmit={handleSignUp} className="w-full space-y-3">
           
-          {/* Full Name */}
           <div className="space-y-1">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Full Name</label>
             <div className="grid grid-cols-2 gap-3">
@@ -114,14 +103,12 @@ export default function SignUp() {
             {(errors.firstName || errors.lastName) && <p className="text-[10px] text-red-500 ml-1">Name is required</p>}
           </div>
 
-          {/* Email */}
           <div className="space-y-1">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Email Address</label>
             <input name="email" type="email" placeholder="example@gmail.com" onChange={handleChange} className={inputStyle("email")} />
             {errors.email && <p className="text-[10px] text-red-500 ml-1">{errors.email}</p>}
           </div>
 
-          {/* Mobile Number */}
           <div className="space-y-1">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Mobile Number</label>
             <div className={`flex bg-[#EBEBEB] rounded-lg overflow-hidden border-2 ${errors.mobileNumber ? "border-red-400" : "border-transparent"}`}>
@@ -131,7 +118,6 @@ export default function SignUp() {
             {errors.mobileNumber && <p className="text-[10px] text-red-500 ml-1">{errors.mobileNumber}</p>}
           </div>
 
-          {/* Location Dropdowns */}
           <div className="space-y-2">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">City & Barangay</label>
             <select name="city" onChange={handleChange} className={inputStyle("city")}>
@@ -145,17 +131,48 @@ export default function SignUp() {
             </select>
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Password</label>
-            <input name="password" type="password" placeholder="Password" onChange={handleChange} className={inputStyle("password")} />
+            
+            {/* Password Field */}
+            <div className="relative">
+              <input 
+                name="password" 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Password" 
+                onChange={handleChange} 
+                className={inputStyle("password")} 
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#004A8C] transition-colors p-1"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && <p className="text-[10px] text-red-500 ml-1 leading-tight">{errors.password}</p>}
             
-            <input name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} className={inputStyle("confirmPassword")} />
+            {/* Confirm Password Field */}
+            <div className="relative">
+              <input 
+                name="confirmPassword" 
+                type={showConfirmPassword ? "text" : "password"} 
+                placeholder="Confirm Password" 
+                onChange={handleChange} 
+                className={inputStyle("confirmPassword")} 
+              />
+              <button 
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#004A8C] transition-colors p-1"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.confirmPassword && <p className="text-[10px] text-red-500 ml-1">{errors.confirmPassword}</p>}
           </div>
 
-          {/* Checkboxes */}
           <div className="space-y-2 pt-2">
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
