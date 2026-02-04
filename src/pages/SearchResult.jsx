@@ -413,11 +413,11 @@ export default function SearchResults() {
         </div>
       )}
 
-      <footer className="flex-shrink-0 w-full bg-[#0B3B68] h-40 mt-auto relative overflow-hidden flex items-center justify-center">
+     <footer className="flex-shrink-0 w-full bg-[#0B3B68] h-40 mt-auto relative overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent animate-pulse duration-[4000ms]"></div>
         <div className="flex flex-col items-center gap-2 relative z-10">
             <h2 className="text-white/40 font-black tracking-[0.2em] text-xs uppercase">TrabaHome</h2>
-            <p className="text-white/40 text-[10px]">© 2026 Professional Services Platform. All rights reserved.</p>
+            <p className="text-white/60 text-sm">© 2026 TrabaHome. All rights reserved.</p>
         </div>
       </footer>
     </div>

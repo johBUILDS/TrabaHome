@@ -15,6 +15,7 @@ import ViewRequests from "./pages/ViewRequests";
 import HomeWorker from "./workerpages/HomeWorker";
 import WorkersJobs from "./workerpages/WorkersJobs"; 
 import WorkerOwnProfile from "./workerpages/WorkerOwnProfile"; 
+import WorkerSignup from "./workerpages/WorkerSignup";
 
 export default function App() {
   return (
@@ -31,10 +32,12 @@ export default function App() {
         <Route path="/worker-login" element={<WorkerLoginPage />} />
         
         {/* Homeowner Home Route */}
-        <Route path="/home" element={<Home />} />
+        <Route path="Home" element={<Home />} />
 
         {/* Worker Dashboard/Home Route */}
         <Route path="/HomeWorker" element={<HomeWorker />} />
+        {/* Worker Signup Route */}
+        <Route path="/worker-signup" element={<WorkerSignup />} />
 
         {/* Route for WorkersJobs */}
         <Route path="/worker-jobs" element={<WorkersJobs />} />
