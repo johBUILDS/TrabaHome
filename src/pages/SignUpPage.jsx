@@ -23,6 +23,23 @@ export default function SignUp() {
 
   const [errors, setErrors] = useState({});
 
+  const normalizePhilippineMobile = (value) => {
+    if (value === undefined || value === null) return null;
+    let raw = String(value).trim();
+    if (!raw) return null;
+    raw = raw.replace(/[()\-\s]/g, '');
+    if (raw.startsWith('+')) {
+      if (!raw.startsWith('+63')) return null;
+      raw = `0${raw.slice(3)}`;
+    } else if (raw.startsWith('63')) {
+      raw = `0${raw.slice(2)}`;
+    } else if (raw.startsWith('9')) {
+      raw = `0${raw}`;
+    }
+    if (!/^09\d{9}$/.test(raw)) return null;
+    return raw;
+  };
+
   const validate = () => {
     let newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
@@ -31,9 +48,9 @@ export default function SignUp() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) newErrors.email = "Enter a valid email address";
 
-    const mobileRegex = /^9\d{9}$/;
-    if (!mobileRegex.test(formData.mobileNumber)) {
-      newErrors.mobileNumber = "Enter a valid 10-digit number (e.g., 9123456789)";
+    const normalizedPhone = normalizePhilippineMobile(formData.mobileNumber);
+    if (!normalizedPhone) {
+      newErrors.mobileNumber = "Enter a valid PH mobile (09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX)";
     }
 
     if (!formData.city) newErrors.city = "Please select a city";
@@ -70,7 +87,8 @@ export default function SignUp() {
   const handleSignUp = (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Form Submitted Successfully", formData);
+      const normalizedPhone = normalizePhilippineMobile(formData.mobileNumber);
+      console.log("Form Submitted Successfully", { ...formData, mobileNumber: normalizedPhone });
       navigate("/search");
     }
   };
@@ -112,8 +130,7 @@ export default function SignUp() {
           <div className="space-y-1">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Mobile Number</label>
             <div className={`flex bg-[#EBEBEB] rounded-lg overflow-hidden border-2 ${errors.mobileNumber ? "border-red-400" : "border-transparent"}`}>
-              <span className="px-3 py-2.5 text-[13px] text-gray-500 border-r border-gray-300">+63</span>
-              <input name="mobileNumber" type="tel" placeholder="9123456789" onChange={handleChange} className="w-full bg-transparent px-3 py-2.5 text-[13px] outline-none" />
+              <input name="mobileNumber" type="tel" placeholder="09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX" onChange={handleChange} className="w-full bg-transparent px-3 py-2.5 text-[13px] outline-none" />
             </div>
             {errors.mobileNumber && <p className="text-[10px] text-red-500 ml-1">{errors.mobileNumber}</p>}
           </div>

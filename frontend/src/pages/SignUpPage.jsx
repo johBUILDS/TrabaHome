@@ -7,6 +7,9 @@ export default function SignUp() {
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -23,6 +26,23 @@ export default function SignUp() {
 
   const [errors, setErrors] = useState({});
 
+  const normalizePhilippineMobile = (value) => {
+    if (value === undefined || value === null) return null;
+    let raw = String(value).trim();
+    if (!raw) return null;
+    raw = raw.replace(/[()\-\s]/g, '');
+    if (raw.startsWith('+')) {
+      if (!raw.startsWith('+63')) return null;
+      raw = `0${raw.slice(3)}`;
+    } else if (raw.startsWith('63')) {
+      raw = `0${raw.slice(2)}`;
+    } else if (raw.startsWith('9')) {
+      raw = `0${raw}`;
+    }
+    if (!/^09\d{9}$/.test(raw)) return null;
+    return raw;
+  };
+
   const validate = () => {
     let newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
@@ -31,9 +51,9 @@ export default function SignUp() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) newErrors.email = "Enter a valid email address";
 
-    const mobileRegex = /^9\d{9}$/;
-    if (!mobileRegex.test(formData.mobileNumber)) {
-      newErrors.mobileNumber = "Enter a valid 10-digit number (e.g., 9123456789)";
+    const normalizedPhone = normalizePhilippineMobile(formData.mobileNumber);
+    if (!normalizedPhone) {
+      newErrors.mobileNumber = "Enter a valid PH mobile (09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX)";
     }
 
     if (!formData.city) newErrors.city = "Please select a city";
@@ -67,11 +87,40 @@ export default function SignUp() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("Form Submitted Successfully", formData);
-      navigate("/search");
+    setServerError("");
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/homeowner/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          phone: normalizePhilippineMobile(formData.mobileNumber),
+          address: {
+            city: formData.city,
+            state: formData.barangay
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || "Registration failed");
+      }
+
+      navigate(`/verify-email/homeowner?email=${encodeURIComponent(formData.email)}`);
+    } catch (err) {
+      setServerError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,8 +161,7 @@ export default function SignUp() {
           <div className="space-y-1">
             <label className="block text-[12px] font-bold text-gray-800 ml-1">Mobile Number</label>
             <div className={`flex bg-[#EBEBEB] rounded-lg overflow-hidden border-2 ${errors.mobileNumber ? "border-red-400" : "border-transparent"}`}>
-              <span className="px-3 py-2.5 text-[13px] text-gray-500 border-r border-gray-300">+63</span>
-              <input name="mobileNumber" type="tel" placeholder="9123456789" onChange={handleChange} className="w-full bg-transparent px-3 py-2.5 text-[13px] outline-none" />
+              <input name="mobileNumber" type="tel" placeholder="09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX" onChange={handleChange} className="w-full bg-transparent px-3 py-2.5 text-[13px] outline-none" />
             </div>
             {errors.mobileNumber && <p className="text-[10px] text-red-500 ml-1">{errors.mobileNumber}</p>}
           </div>
@@ -187,8 +235,14 @@ export default function SignUp() {
             {errors.checkboxes && <p className="text-[10px] text-red-500">{errors.checkboxes}</p>}
           </div>
 
-          <button type="submit" className="w-full bg-[#004A8C] text-white py-3 rounded-full font-bold text-[15px] hover:bg-[#003666] transition-all mt-4 active:scale-95">
-            Create Account
+          {serverError && <p className="text-[10px] text-red-500 font-bold text-center">{serverError}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#004A8C] text-white py-3 rounded-full font-bold text-[15px] hover:bg-[#003666] transition-all mt-4 active:scale-95 disabled:opacity-60"
+          >
+            {loading ? "Creating..." : "Create Account"}
           </button>
         </form>
       </div>

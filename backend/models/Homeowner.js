@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const homeownerSchema = new mongoose.Schema({
@@ -29,7 +29,8 @@ const homeownerSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required']
+    required: [true, 'Phone number is required'],
+    match: [/^09\d{9}$/, 'Please provide a valid Philippine mobile number']
   },
   address: {
     street: String,
@@ -45,6 +46,34 @@ const homeownerSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationCode: {
+    type: String,
+    select: false
+  },
+  emailVerificationExpires: {
+    type: Date,
+    select: false
+  },
+  passwordResetCode: {
+    type: String,
+    select: false
+  },
+  passwordResetExpires: {
+    type: Date,
+    select: false
+  },
+  loginOtpCode: {
+    type: String,
+    select: false
+  },
+  loginOtpExpires: {
+    type: Date,
+    select: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -55,7 +84,6 @@ const homeownerSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving
 homeownerSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
@@ -70,7 +98,6 @@ homeownerSchema.pre('save', async function(next) {
   }
 });
 
-// Method to compare passwords
 homeownerSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
