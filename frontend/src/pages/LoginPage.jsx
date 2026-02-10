@@ -7,8 +7,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     
@@ -18,10 +19,42 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_URL}/homeowner/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data?.requiresEmailVerification) {
+          navigate(`/verify-email/homeowner?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        throw new Error(data?.error || data?.message || "Login failed");
+      }
+
+      if (data?.otpRequired) {
+        navigate(`/login-otp/homeowner?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
+      if (data?.token) {
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("authRole", "homeowner");
+        localStorage.setItem("homeownerToken", data.token);
+        navigate("/home");
+        return;
+      }
+
+      setError("Login response was incomplete. Please try again.");
+    } catch (err) {
+      setError(err.message || "Login failed");
+    } finally {
       setLoading(false);
-      navigate("/home");
-    }, 1000);
+    }
   };
 
   return (
@@ -70,9 +103,9 @@ export default function LoginPage() {
               className="w-full bg-[#EEEEEE] border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#0B3B68] outline-none placeholder:text-gray-400"
             />
             <div className="text-right mt-1">
-              <button type="button" className="text-[10px] text-gray-500 font-semibold hover:text-[#0B3B68]">
+              <Link to="/reset-password/homeowner" className="text-[10px] text-gray-500 font-semibold hover:text-[#0B3B68]">
                 Forgot Password?
-              </button>
+              </Link>
             </div>
           </div>
 

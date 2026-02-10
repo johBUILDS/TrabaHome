@@ -11,6 +11,8 @@ import requestArchiveRoutes from './routes/requestArchive.js';
 import favoriteRoutes from './routes/favorites.js';
 import workerAuthRoutes from './routes/workerAuth.js';
 import workerJobsRoutes from './routes/workerJobs.js';
+import workerDocsRoutes from './routes/workerDocs.js';
+import adminRoutes from './routes/admin.js';
 import connectDB from './config/database.js';
 
 dotenv.config();
@@ -22,14 +24,18 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// allow base64 image payloads for ID OCR (up to ~10MB)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.use('/api/homeowner', homeownerAuthRoutes);
 app.use('/api/homeowner/requests', homeownerRequestsRoutes);
 app.use('/api/workers', searchRoutes);
+app.use('/api/workers', workerDocsRoutes);
 app.use('/api/worker', workerAuthRoutes);
 app.use('/api/worker', workerJobsRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/request-history', requestHistoryRoutes);

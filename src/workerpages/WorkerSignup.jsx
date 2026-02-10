@@ -40,14 +40,34 @@ const WorkerSignup = () => {
 
   const [errors, setErrors] = useState({});
 
+  const normalizePhilippineMobile = (value) => {
+    if (value === undefined || value === null) return null;
+    let raw = String(value).trim();
+    if (!raw) return null;
+    raw = raw.replace(/[()\-\s]/g, '');
+    if (raw.startsWith('+')) {
+      if (!raw.startsWith('+63')) return null;
+      raw = `0${raw.slice(3)}`;
+    } else if (raw.startsWith('63')) {
+      raw = `0${raw.slice(2)}`;
+    } else if (raw.startsWith('9')) {
+      raw = `0${raw}`;
+    }
+    if (!/^09\d{9}$/.test(raw)) return null;
+    return raw;
+  };
+
   const validateStep1 = () => {
     let newErrors = {};
     const nameRegex = /^[A-Za-z\s]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/;
+    const normalizedPhone = normalizePhilippineMobile(formData.phone);
 
     if (!nameRegex.test(formData.firstName)) newErrors.firstName = "Letters only, no numbers.";
     if (!nameRegex.test(formData.lastName)) newErrors.lastName = "Letters only, no numbers.";
-    if (formData.phone.length !== 11) newErrors.phone = "Phone number must be exactly 11 digits.";
+    if (!normalizedPhone) {
+      newErrors.phone = "Enter a valid PH mobile (09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX).";
+    }
     if (!passwordRegex.test(formData.password)) {
       newErrors.password = "Must have 1 capital letter & 1 special character.";
     }
@@ -56,6 +76,10 @@ const WorkerSignup = () => {
     }
     if (!formData.agreedTerms || !formData.agreedPrivacy) {
       newErrors.agreements = "You must agree to both Terms and Privacy Policy.";
+    }
+
+    if (Object.keys(newErrors).length === 0 && normalizedPhone && normalizedPhone !== formData.phone) {
+      setFormData(prev => ({ ...prev, phone: normalizedPhone }));
     }
 
     setErrors(newErrors);
@@ -82,7 +106,7 @@ const WorkerSignup = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === "phone" && !/^\d*$/.test(value)) return;
+    if (name === "phone" && !/^[+\d]*$/.test(value)) return;
     
     setFormData(prev => ({ 
       ...prev, 
@@ -176,19 +200,16 @@ const WorkerSignup = () => {
               <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="enter email address" className="w-full p-3 bg-gray-100 rounded-lg text-sm outline-none" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-700">Mobile Number (11 Digits)</label>
-              <div className="flex gap-2">
-                <div className="bg-gray-100 p-3 rounded-lg text-sm text-gray-500">+63</div>
-                <input 
-                  type="text" 
-                  name="phone" 
-                  maxLength={11}
-                  value={formData.phone}
-                  onChange={handleInputChange} 
-                  placeholder="09123456789" 
-                  className={`flex-1 p-3 bg-gray-100 rounded-lg text-sm outline-none ${errors.phone ? 'border border-red-500' : ''}`} 
-                />
-              </div>
+              <label className="text-xs font-bold text-gray-700">Mobile Number</label>
+              <input 
+                type="text" 
+                name="phone" 
+                maxLength={13}
+                value={formData.phone}
+                onChange={handleInputChange} 
+                placeholder="09XXXXXXXXX, 9XXXXXXXXX, or +63XXXXXXXXX" 
+                className={`w-full p-3 bg-gray-100 rounded-lg text-sm outline-none ${errors.phone ? 'border border-red-500' : ''}`} 
+              />
               {errors.phone && <p className="text-[10px] text-red-500">{errors.phone}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">

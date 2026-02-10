@@ -8,8 +8,9 @@ export default function WorkerLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -19,12 +20,42 @@ export default function WorkerLoginPage() {
     }
 
     setLoading(true);
-    // Simulate login API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_URL}/worker/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data?.requiresEmailVerification) {
+          navigate(`/verify-email/worker?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        throw new Error(data?.error || data?.message || "Login failed");
+      }
+
+      if (data?.otpRequired) {
+        navigate(`/login-otp/worker?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
+      if (data?.token) {
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("authRole", "worker");
+        localStorage.setItem("workerToken", data.token);
+        navigate("/HomeWorker");
+        return;
+      }
+
+      setError("Login response was incomplete. Please try again.");
+    } catch (err) {
+      setError(err.message || "Login failed");
+    } finally {
       setLoading(false);
-      // In real app, validate credentials and store auth token
-      navigate("/worker-home");
-    }, 1000);
+    }
   };
 
   return (
@@ -93,9 +124,9 @@ export default function WorkerLoginPage() {
 
             {/* Forgot Password Link */}
             <div className="text-right">
-              <link href="#" className="text-sm text-[#FFD700] hover:text-[#0B3B68] font-semibold">
+              <Link to="/reset-password/worker" className="text-sm text-[#FFD700] hover:text-[#0B3B68] font-semibold">
                 Forgot password?
-              </link>
+              </Link>
             </div>
 
             {/* Sign In Button */}
