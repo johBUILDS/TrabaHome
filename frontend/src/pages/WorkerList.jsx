@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+// Import the Navbar component
+import Navbar from "../components/Navbar";
 import { 
   BellIcon, MapIcon, ListIcon, HammerIcon, TrowelIcon, 
   DropletIcon, ZapIcon, BrushIcon, SproutIcon, WrenchIcon,
@@ -122,19 +124,9 @@ export default function WorkerList() {
 
   return (
     <div className={`w-full min-h-screen bg-[#F9F6F2] text-[#0B3B68] font-sans flex flex-col relative animate-in fade-in duration-1000 ${isModalOpen || isSuccessOpen || isAlertOpen ? 'overflow-hidden' : ''}`}>
-      <div className="w-full bg-[#F9F6F2] border-b border-gray-200/50 flex-shrink-0 sticky top-0 z-40 backdrop-blur-md">
-        <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
-          <img 
-            src="/assets/Logo.png"
-            alt="TrabaHome"
-            className="h-8 w-auto cursor-pointer hover:opacity-80 transition-all active:scale-95"
-            onClick={() => navigate('/home')}
-          />
-          <div className="p-2 rounded-full hover:bg-black/5 transition-all cursor-pointer active:scale-90 group">
-            <BellIcon className="w-6 h-6 text-[#0B3B68] group-hover:rotate-12 transition-transform" />
-          </div>
-        </header>
-      </div>
+      
+      {/* Navbar component added here */}
+      <Navbar />
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 py-8 h-full">
       

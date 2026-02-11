@@ -50,6 +50,20 @@ export default function MyRequests() {
         userRating: null,
         userReview: ""
       },
+      // --- STATIC PENDING EXAMPLE ADDED HERE ---
+      {
+        id: 2,
+        workerName: "Mang Berto",
+        role: "Carpenter",
+        status: "Pending",
+        statusMessage: "We sent your request via SMS.",
+        subMessage: "Once the worker accepts, both of you will be able to see each other's contact details so you can coordinate directly.",
+        dateSent: "Jan 14, 3:00 PM",
+        image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=600",
+        location: "Mangaldan, Pangasinan",
+        description: "sira pinto koooooo",
+        schedule: "Not specified",
+      },
       {
         id: 3,
         workerName: "Mang Berto",

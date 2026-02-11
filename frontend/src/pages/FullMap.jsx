@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+// Import the Navbar component
+import Navbar from "../components/Navbar";
+
 import { 
   BellIcon, MapIcon, ListIcon, HammerIcon, TrowelIcon, 
   DropletIcon, ZapIcon, BrushIcon, SproutIcon, WrenchIcon,
@@ -136,12 +139,8 @@ export default function FullMap() {
 
   return (
     <div className="w-full h-screen bg-[#F9F6F2] text-[#0B3B68] font-sans flex flex-col overflow-hidden select-none">
-      <div className="w-full bg-[#F9F6F2] border-b border-gray-200/50 flex-shrink-0">
-        <header className="flex items-center justify-between px-6 md:px-10 py-6 max-w-7xl mx-auto w-full">
-          <img src="/assets/Logo.png" alt="TrabaHome" className="h-8 w-auto cursor-pointer" onClick={() => navigate('/home')} />
-          <div className="p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"><BellIcon className="w-6 h-6 text-[#0B3B68]" /></div>
-        </header>
-      </div>
+      {/* Navbar component replaces the old manual header */}
+      <Navbar />
 
       <main className="flex-grow flex flex-col w-full max-w-7xl mx-auto px-6 py-6 h-full min-h-0">
         <div className="flex-shrink-0">

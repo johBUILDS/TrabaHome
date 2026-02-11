@@ -13,6 +13,7 @@ import WorkerList from "./pages/WorkerList";
 import FullMap from "./pages/FullMap";            
 import WorkerProfile from "./pages/WorkerProfile";
 import ViewRequests from "./pages/ViewRequests";
+import HomeownerProfile from "./pages/HomeownerProfile";
 
 // Worker Pages - Ensure folder name "workerpages" matches your file tree exactly
 import HomeWorker from "./workerpages/HomeWorker";
@@ -32,7 +33,7 @@ export default function App() {
     <Router>
       <Routes>
         {/* Landing Page - Role Selection */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="LandingPage" element={<LandingPage />} />
         
         {/* Homeowner Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
@@ -51,7 +52,7 @@ export default function App() {
         <Route path="/login-otp" element={<LoginOtp />} />
         
         {/* Homeowner Home Route */}
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
 
         {/* Worker Dashboard/Home Route */}
         <Route path="/HomeWorker" element={<HomeWorker />} />
@@ -64,10 +65,15 @@ export default function App() {
         {/* Route for Worker's own Profile */}
         <Route path="/worker-profile" element={<WorkerOwnProfile />} />
 
+        {/* Add HomeownerProfile route */}
+        <Route path="/homeowner-profile-temp" element={<HomeownerProfile />} />
+
         {/* Search & Navigation Routes */}
         <Route path="/search" element={<SearchResult />} /> 
         <Route path="/list" element={<WorkerList />} />      
-        <Route path="/map" element={<FullMap />} />          
+        <Route path="/map" element={<FullMap />} />   
+        
+            
         
         {/* Profile Route (Homeowner viewing a worker) */}
         <Route path="/profile/:id" element={<WorkerProfile />} />

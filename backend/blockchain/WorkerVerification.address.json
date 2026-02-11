@@ -1,0 +1,223 @@
+{
+  "address": "0x959Fd44BA49bC05Dd8a1c2bf55E7C63E049723fb",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_admin",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor",
+      "signature": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "workerName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "adminId",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WorkerVerificationAdded",
+      "type": "event",
+      "signature": "0x987b6f43dcfd7ba259ade8a447eaee5d023075e73d021268a7fce071519ee58a"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum WorkerVerification.Status",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "adminId",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WorkerVerificationStatusUpdated",
+      "type": "event",
+      "signature": "0x61b6cc9168a7adcf6b95e45a43bed4a772e70919e90440cee2c17d8e3149e8f9"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "workerName",
+          "type": "string"
+        }
+      ],
+      "name": "addWorkerVerification",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x67dceda5"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true,
+      "signature": "0xf851a440"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        }
+      ],
+      "name": "getWorkerVerification",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "workerId",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "workerName",
+              "type": "string"
+            },
+            {
+              "internalType": "enum WorkerVerification.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "adminId",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct WorkerVerification.Verification",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true,
+      "signature": "0x4b018406"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        },
+        {
+          "internalType": "enum WorkerVerification.Status",
+          "name": "status",
+          "type": "uint8"
+        }
+      ],
+      "name": "updateVerificationStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x1ca2cf28"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "verifications",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "workerId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "workerName",
+          "type": "string"
+        },
+        {
+          "internalType": "enum WorkerVerification.Status",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "adminId",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true,
+      "signature": "0x9b5b2ef6"
+    }
+  ]
+}
