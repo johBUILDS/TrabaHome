@@ -20,11 +20,11 @@ import WorkerOwnProfile from "./workerpages/WorkerOwnProfile";
 import WorkerSignup from "./workerpages/WorkerSignup";
 
 // Admin Pages (Aligned with your actual file names in the sidebar)
-import AdminDashboard from "./Admin Pages/Admin-Dashboard"; // Added the dash
-import AdminHomeowners from "./Admin Pages/Admin-Homeowners";
-import AdminWorkers from "./Admin Pages/Admin-Workers";
-import AdminRequest from "./Admin Pages/Admin-Request";
-import AdminSmslogs from "./Admin Pages/Admin-Smslogs";
+import AdminDashboard from "./adminPages/Admin-Dashboard"; // Added the dash
+import AdminHomeowners from "./adminPages/Admin-Homeowners";
+import AdminWorkers from "./adminPages/Admin-Workers";
+import AdminRequest from "./adminPages/Admin-Request";
+import AdminSmslogs from "./adminPages/Admin-Smslogs";
 
 // CRITICAL: Commented out because Admin-Profile.jsx is missing in your screenshot
 // import AdminProfile from "./Admin Pages/Admin-Profile"; 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "../components/requestpages/Navbar";
+import Footer from "../components/heropages/Footer";
 import { 
   MapPinIcon, SearchIcon, HammerIcon, BrushIcon, 
   WrenchIcon, SproutIcon, TrowelIcon, ZapIcon, DropletIcon,
