@@ -156,9 +156,11 @@ export interface StepTwoProps {
 
 export interface StepThreeProps {
   formData: WorkerSignupFormData;
+  errors?: SignupErrors;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onProofOfWorkUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => void;
+  isLoading: boolean;
 }
 
 export interface SubmittedModalProps {

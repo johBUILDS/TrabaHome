@@ -18,6 +18,7 @@ import HomeWorker from "./workerpages/HomeWorker";
 import WorkersJobs from "./workerpages/WorkersJobs"; 
 import WorkerOwnProfile from "./workerpages/WorkerOwnProfile"; 
 import WorkerSignup from "./workerpages/WorkerSignup";
+import SubmissionSuccess from "./pages/SubmissionSuccess"
 
 // Admin Pages (Aligned with your actual file names in the sidebar)
 import AdminDashboard from "./adminPages/Admin-Dashboard"; // Added the dash
@@ -54,6 +55,8 @@ export default function App() {
         <Route path="/home-worker" element={<HomeWorker />} />
         <Route path="/worker-jobs" element={<WorkersJobs />} />
         <Route path="/worker-own-profile" element={<WorkerOwnProfile />} />
+        <Route path="/submission-success" element={<SubmissionSuccess />} />
+
 
         {/* Admin Routes */}        
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

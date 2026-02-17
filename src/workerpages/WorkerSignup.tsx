@@ -1,202 +1,360 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Stepper from '../components/signup/Stepper.tsx';
+import React, { useState } from 'react';
 import StepOne from '../components/signup/StepOne.tsx';
 import StepTwo from '../components/signup/StepTwo.tsx';
 import StepThree from '../components/signup/StepThree.tsx';
 import SubmittedModal from '../components/signup/SubmittedModal.tsx';
-import { initialFormData } from '../constants/SignUpData.ts';
-import { validateStep1, validateStep2, normalizePhilippineMobile } from '../utils/Validation.ts';
 import type { WorkerSignupFormData, SignupErrors } from '../types/Worker.types.ts';
+import { useNavigate } from 'react-router-dom';
+import { workerAPI } from '../services/WorkerApi.ts';
 
 const WorkerSignup: React.FC = () => {
-  const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState<WorkerSignupFormData>(initialFormData);
+  const [formData, setFormData] = useState<WorkerSignupFormData>({
+    // Step 1 Fields
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false,
+    agreeToPrivacy: false,
+
+    // Step 2 Fields
+    idType: '',
+    idFront: null,
+    idFrontPreview: null,
+    idBack: null,
+    idBackPreview: null,
+    selfie: null,
+    selfiePreview: null,
+    idNumber: '',
+    surname: '',
+    givenName: '',
+    middleName: '',
+    dateOfBirth: '',
+    nationality: '',
+    nationalityOther: '',
+    sex: '',
+    placeOfBirth: '',
+    dateOfIssue: '',
+    expiryDate: '',
+    issuingAuthority: '',
+
+    // Step 3 Fields
+    profession: '',
+    province: 'Pangasinan',
+    city: '',
+    barangay: '',
+    proofOfWork: [],
+    proofOfWorkPreviews: [],
+  });
+
   const [errors, setErrors] = useState<SignupErrors>({});
 
-  // Cleanup object URLs on unmount to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (formData.idFrontPreview) URL.revokeObjectURL(formData.idFrontPreview);
-      if (formData.idBackPreview) URL.revokeObjectURL(formData.idBackPreview);
-      if (formData.selfiePreview) URL.revokeObjectURL(formData.selfiePreview);
-      // Cleanup proof of work previews
-      formData.proofOfWorkPreviews?.forEach(preview => {
-        if (preview) URL.revokeObjectURL(preview);
-      });
-    };
-  }, []);
+  // Handle input changes for text fields and selects
+  const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, type } = e.target as HTMLInputElement;
+  
+  const value = type === 'checkbox'
+    ? (e.target as HTMLInputElement).checked
+    : e.target.value;
 
-  const handleStep1Next = (): void => {
-    const validationErrors = validateStep1(formData);
-    setErrors(validationErrors);
-    
-    if (Object.keys(validationErrors).length === 0) {
-      const normalizedPhone = normalizePhilippineMobile(formData.phone);
-      if (normalizedPhone && normalizedPhone !== formData.phone) {
-        setFormData(prev => ({ ...prev, phone: normalizedPhone }));
-      }
-      setStep(2);
-    }
-  };
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
 
-  const handleStep2Next = (): void => {
-    const validationErrors = validateStep2(formData);
-    setErrors(validationErrors);
-    
-    if (Object.keys(validationErrors).length === 0) {
-      setStep(3);
-    }
-  };
+  if (errors[name]) {
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
+  }
+};
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    
-    if (name === "phone" && !/^[+\d]*$/.test(value)) return;
-    
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
-    }));
-  };
+  // Handle file changes for ID uploads
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof WorkerSignupFormData
+  ) => {
+    const file = e.target?.files?.[0];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof WorkerSignupFormData): void => {
-    const file = e.target.files?.[0];
-    
     if (file) {
-      // Revoke old object URL to avoid memory leaks
-      const previewField = `${field}Preview` as keyof WorkerSignupFormData;
-      if (formData[previewField]) {
-        URL.revokeObjectURL(formData[previewField] as string);
-      }
-      
-      // Create new preview URL
-      const previewUrl = URL.createObjectURL(file);
-      
-      setFormData(prev => ({ 
-        ...prev, 
-        [field]: file,
-        [`${field}Preview`]: previewUrl
-      }));
-      
-      // Clear errors for ID uploads
-      if (field === 'idFront' || field === 'idBack') {
-        setErrors(prev => ({ ...prev, idUpload: '' }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          [field]: file,
+          [`${field}Preview`]: reader.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+
+      if (errors[field as string]) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field as string];
+          return newErrors;
+        });
       }
     } else {
-      // Clear both file and preview when no file selected (for delete button)
-      const previewField = `${field}Preview` as keyof WorkerSignupFormData;
-      if (formData[previewField]) {
-        URL.revokeObjectURL(formData[previewField] as string);
-      }
-      
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData(prev => ({
+        ...prev,
         [field]: null,
         [`${field}Preview`]: null
       }));
     }
   };
 
-  const handleProofOfWork = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
-    
-    // Initialize arrays if they don't exist
-    const currentPreviews = formData.proofOfWorkPreviews || [];
-    const currentFiles = formData.proofOfWork || [];
-    
-    if (!file) {
-      // Remove image at index (when X button is clicked)
-      const newPreviews = [...currentPreviews];
-      const newFiles = [...currentFiles];
-      
-      // Revoke old URL to prevent memory leak
-      if (newPreviews[index]) {
-        URL.revokeObjectURL(newPreviews[index]);
+  // Handle proof of work uploads (multiple files for Step 3)
+  const handleProofOfWorkUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target?.files;
+
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      const newPreviews: string[] = [];
+
+      fileArray.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+
+          if (newPreviews.length === fileArray.length) {
+            setFormData(prev => ({
+              ...prev,
+              proofOfWork: [...prev.proofOfWork, ...fileArray],
+              proofOfWorkPreviews: [...prev.proofOfWorkPreviews, ...newPreviews]
+            }));
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      if (errors.proofOfWork) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.proofOfWork;
+          return newErrors;
+        });
       }
-      
-      newPreviews[index] = undefined as any;
-      newFiles[index] = undefined as any;
-      
-      setFormData(prev => ({
-        ...prev,
-        proofOfWorkPreviews: newPreviews,
-        proofOfWork: newFiles
-      }));
+    }
+  };
+
+  // Handle password toggle
+  const handleTogglePassword = (field: 'password' | 'confirmPassword') => {
+    if (field === 'password') {
+      setShowPassword(prev => !prev);
+    } else {
+      setShowConfirmPassword(prev => !prev);
+    }
+  };
+
+  // Navigate to next step after validating Step 1
+  const handleStep1Next = () => {
+    const newErrors: SignupErrors = {};
+
+    if (!formData.firstName) newErrors.firstName = 'First name is required';
+    if (!formData.lastName) newErrors.lastName = 'Last name is required';
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.phone) newErrors.phone = 'Phone number is required';
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.agreeToTerms || !formData.agreeToPrivacy) {
+      newErrors.agreements = 'You must agree to the terms and privacy policy';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-    
-    // Add new image at index
-    const newPreviews = [...currentPreviews];
-    const newFiles = [...currentFiles];
-    
-    // Revoke old URL if exists
-    if (newPreviews[index]) {
-      URL.revokeObjectURL(newPreviews[index]);
+
+    setErrors({});
+    setStep(2);
+  };
+
+  // Navigate to next step after validating Step 2
+  const handleStep2Next = () => {
+    const newErrors: SignupErrors = {};
+
+    if (!formData.idType) newErrors.idType = 'Please select an ID type';
+    if (!formData.idFront || !formData.idBack) newErrors.idUpload = 'Please upload both front and back of your ID';
+    if (!formData.selfie) newErrors.selfie = 'Selfie is required for verification';
+    if (!formData.idNumber) newErrors.idNumber = 'ID number is required';
+    if (!formData.surname) newErrors.surname = 'Surname is required';
+    if (!formData.givenName) newErrors.givenName = 'Given name is required';
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+
+    if (!formData.nationality) {
+      newErrors.nationality = 'Nationality is required';
     }
-    
-    // Create new preview URL
-    const previewUrl = URL.createObjectURL(file);
-    newPreviews[index] = previewUrl;
-    newFiles[index] = file;
-    
-    setFormData(prev => ({
-      ...prev,
-      proofOfWorkPreviews: newPreviews,
-      proofOfWork: newFiles
-    }));
-  };
 
-  const handleTogglePassword = (field: 'password' | 'confirmPassword'): void => {
-    if (field === 'password') {
-      setShowPassword(!showPassword);
-    } else {
-      setShowConfirmPassword(!showConfirmPassword);
+    if (formData.nationality === 'Other' && !formData.nationalityOther) {
+      newErrors.nationalityOther = 'Please specify your nationality';
     }
+
+    if (!formData.sex) newErrors.sex = 'Sex is required';
+    if (!formData.placeOfBirth) newErrors.placeOfBirth = 'Place of birth is required';
+    if (!formData.dateOfIssue) newErrors.dateOfIssue = 'Date of issue is required';
+    if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required';
+    if (!formData.issuingAuthority) newErrors.issuingAuthority = 'Issuing authority is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setStep(3);
   };
 
-  const handleSubmit = (): void => {
-    setIsSubmitted(true);
-  };
+  // ── Handle final submission ────────────────────────────────────
+  const handleSubmit = async () => {
+    const newErrors: SignupErrors = {};
 
-  const handleCloseModal = (): void => {
-    setIsSubmitted(false);
-  };
+    if (!formData.profession) newErrors.profession = 'Profession is required';
+    if (!formData.city) newErrors.city = 'City is required';
+    if (!formData.barangay) newErrors.barangay = 'Barangay is required';
 
-  const handleGoToDashboard = (): void => {
-    navigate('/homeworker');
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setIsLoading(true);
+    setSubmitError(null);
+
+    try {
+      const payload = new FormData();
+
+      // ── Step 1 fields ────────────────────────────────────────
+      payload.append('firstName',      formData.firstName);
+      payload.append('lastName',       formData.lastName);
+      payload.append('email',          formData.email);
+      payload.append('phone',          formData.phone);
+      payload.append('password',       formData.password);
+      payload.append('agreeToTerms',   String(formData.agreeToTerms));
+      payload.append('agreeToPrivacy', String(formData.agreeToPrivacy));
+
+      // ── Step 2 fields ────────────────────────────────────────
+      payload.append('idType',           formData.idType);
+      payload.append('idNumber',         formData.idNumber);
+      payload.append('surname',          formData.surname);
+      payload.append('givenName',        formData.givenName);
+      payload.append('middleName',       formData.middleName || '');
+      payload.append('dateOfBirth',      formData.dateOfBirth);
+      payload.append('nationality',      formData.nationality);
+      payload.append('nationalityOther', formData.nationalityOther || '');
+      payload.append('sex',              formData.sex);
+      payload.append('placeOfBirth',     formData.placeOfBirth);
+      payload.append('dateOfIssue',      formData.dateOfIssue);
+      payload.append('expiryDate',       formData.expiryDate);
+      payload.append('issuingAuthority', formData.issuingAuthority);
+
+      // ── Step 2 files ─────────────────────────────────────────
+      // FIX: file fields were missing entirely in the original code
+      if (formData.idFront) payload.append('idFront', formData.idFront);
+      if (formData.idBack)  payload.append('idBack',  formData.idBack);
+      if (formData.selfie)  payload.append('selfie',  formData.selfie);
+
+      // ── Step 3 fields ────────────────────────────────────────
+      payload.append('profession', formData.profession);
+      payload.append('province',   formData.province);
+      payload.append('city',       formData.city);
+      payload.append('barangay',   formData.barangay);
+
+      // ── Step 3 files ─────────────────────────────────────────
+      // FIX: proof of work files were missing entirely in the original code
+      formData.proofOfWork.forEach((file) => {
+        payload.append('proofOfWork', file);
+      });
+
+      await workerAPI.register(payload);
+
+      setIsSubmitted(true);
+    } catch (error: any) {
+      // Show all Mongoose validation errors if present, otherwise fallback message
+      const message =
+        error?.response?.data?.errors?.join(', ') ||
+        error?.response?.data?.message ||
+        'Something went wrong. Please try again.';
+      setSubmitError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F5F2] flex items-center justify-center p-4 font-sans">
-      <div className="bg-white rounded-3xl shadow-sm w-full max-w-[500px] p-8 relative">
-        
-        <div className="flex justify-center mb-6">
-          <img 
-            src="/assets/Logo.png" 
-            alt="TrabaHome" 
-            className="h-10 w-auto object-contain"
-          />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-lg p-8">
+        {/* Progress Indicator */}
+        <div className="flex items-center justify-between mb-8">
+          <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}>
+              1
+            </div>
+            <span className="text-sm font-semibold">Account</span>
+          </div>
+
+          <div className={`flex-1 h-1 mx-2 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+
+          <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}>
+              2
+            </div>
+            <span className="text-sm font-semibold">ID Verification</span>
+          </div>
+
+          <div className={`flex-1 h-1 mx-2 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+
+          <div className={`flex items-center gap-2 ${step >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}>
+              3
+            </div>
+            <span className="text-sm font-semibold">Work Details</span>
+          </div>
         </div>
 
-        <h1 className="text-[#004A8C] text-center font-bold text-xl mb-8">Worker Application</h1>
-
-        <Stepper currentStep={step} />
-
+        {/* Step Content */}
         {step === 1 && (
           <StepOne
             formData={formData}
             errors={errors}
-            showPassword={showPassword}
-            showConfirmPassword={showConfirmPassword}
             onInputChange={handleInputChange}
             onTogglePassword={handleTogglePassword}
+            showPassword={showPassword}
+            showConfirmPassword={showConfirmPassword}
             onNext={handleStep1Next}
           />
         )}
@@ -214,19 +372,29 @@ const WorkerSignup: React.FC = () => {
         {step === 3 && (
           <StepThree
             formData={formData}
+            errors={errors}
             onInputChange={handleInputChange}
-            onProofOfWorkUpload={handleProofOfWork}
+            onProofOfWorkUpload={handleProofOfWorkUpload}
             onSubmit={handleSubmit}
+            isLoading={isLoading}
           />
         )}
 
-        <SubmittedModal
-          isOpen={isSubmitted}
-          firstName={formData.firstName}
-          onClose={handleCloseModal}
-          onGoToDashboard={handleGoToDashboard}
-        />
+        {/* API Error Message */}
+        {submitError && (
+          <p className="text-center text-sm text-red-500 mt-4 font-semibold">
+            {submitError}
+          </p>
+        )}
       </div>
+
+      {/* Success Modal */}
+      <SubmittedModal
+        isOpen={isSubmitted}
+        firstName={formData.firstName}
+        onClose={() => setIsSubmitted(false)}
+        onGoToDashboard={() => navigate('/dashboard')}
+      />
     </div>
   );
 };
