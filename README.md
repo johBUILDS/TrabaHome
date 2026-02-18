@@ -5,18 +5,21 @@ TrabaHome is a web-based service marketplace that connects homeowners with local
 Built as a modular, API-driven system using modern web technologies.
 
 ## Core Platform FeaturesTech Stack
-###🔎 Worker Discovery Engine
+
+🔎 Worker Discovery Engine
 -Weighted Score Algorithm
   -Ranking factors: location proximity, skill relevance, user ratings
 -Radius-based geolocation filtering (Google Maps API)
 -Skill-based search and filtering
 
-###📩 Offline Alert Integration
+
+📩 Offline Alert Integration
 -SMS notification system 
 -Real-time job request alerts to workers
 -Ensures accessibility even without constant internet access
 
-###⭐ Verification & Rating Module
+
+⭐ Verification & Rating Module
 -Worker profile validation
 -Performance history tracking
 -Homeowner rating & review system
