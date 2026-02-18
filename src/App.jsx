@@ -19,6 +19,8 @@ import WorkersJobs from "./workerpages/WorkersJobs";
 import WorkerOwnProfile from "./workerpages/WorkerOwnProfile"; 
 import WorkerSignup from "./workerpages/WorkerSignup";
 import SubmissionSuccess from "./pages/SubmissionSuccess"
+import GuestOnlyRoute from "./components/auth/GuestOnlyRoute";
+import RequireAuth from "./components/auth/RequireAuth";
 
 // Admin Pages (Aligned with your actual file names in the sidebar)
 import AdminDashboard from "./adminPages/Admin-Dashboard"; // Added the dash
@@ -40,8 +42,11 @@ export default function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/worker-login" element={<WorkerLoginPage />} />
-        <Route path="/worker-signup" element={<WorkerSignup />} />
+
+        <Route element={<GuestOnlyRoute />}>
+          <Route path="/worker-login" element={<WorkerLoginPage />} />
+          <Route path="/worker-signup" element={<WorkerSignup />} />
+        </Route>
 
         {/* Homeowner Routes */}
         <Route path="/home" element={<Home />} />
@@ -52,9 +57,13 @@ export default function App() {
         <Route path="/my-requests" element={<ViewRequests />} />
 
         {/* Worker Routes */}
-        <Route path="/home-worker" element={<HomeWorker />} />
-        <Route path="/worker-jobs" element={<WorkersJobs />} />
-        <Route path="/worker-own-profile" element={<WorkerOwnProfile />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/home-worker" element={<HomeWorker />} />
+          <Route path="/HomeWorker" element={<Navigate to="/home-worker" replace />} />
+          <Route path="/worker-jobs" element={<WorkersJobs />} />
+          <Route path="/worker-own-profile" element={<WorkerOwnProfile />} />
+          <Route path="/worker-profile" element={<Navigate to="/worker-own-profile" replace />} />
+        </Route>
         <Route path="/submission-success" element={<SubmissionSuccess />} />
 
 

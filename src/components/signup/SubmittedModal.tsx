@@ -47,7 +47,7 @@ const SubmittedModal: React.FC<SubmittedModalProps> = ({
               className="w-full bg-[#004A8C] text-white py-4 rounded-xl text-sm font-bold hover:bg-[#003a6e] active:scale-[0.98] transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2" 
               onClick={onGoToDashboard}
             >
-              Go to Dashboard
+              Go to Sign In
             </button>
             
             <button 

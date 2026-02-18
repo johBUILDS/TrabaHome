@@ -1,72 +1,80 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-// Import components from the workerjobs subfolder
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  AcceptJobModal,
+  DeclineJobModal,
   Header,
-  Sidebar,
   JobCard,
   JobDetailsModal,
-  AcceptJobModal,
-  DeclineJobModal
+  Sidebar
 } from '../components/workersjobs/Index.ts';
-
-// Import constants
-import { jobTabs } from '../constants/JobTabs.ts';
 import { declineReasons } from '../constants/DeclineReasons.ts';
+import { jobTabs } from '../constants/JobTabs.ts';
 import { initialJobs } from '../constants/MockJobs.ts';
-
-// Import types
 import type { Job, JobStatus } from '../types/Job.types.ts';
+import { clearWorkerSession, getWorkerSession } from '../utils/workerAuth.ts';
+
+const WORKER_DASHBOARD_ROUTE = '/home-worker';
 
 const WorkersJobs: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<JobStatus | 'All'>('Pending');
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null); 
-  const [selectedDeclineJob, setSelectedDeclineJob] = useState<Job | null>(null); 
-  const [selectedAcceptJob, setSelectedAcceptJob] = useState<Job | null>(null);
+  const workerSession = getWorkerSession();
+  const workerName = workerSession?.worker?.firstName
+    ? String(workerSession.worker.firstName)
+    : 'Worker';
 
+  const [activeTab, setActiveTab] = useState<JobStatus | 'All'>('Pending');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedDeclineJob, setSelectedDeclineJob] = useState<Job | null>(null);
+  const [selectedAcceptJob, setSelectedAcceptJob] = useState<Job | null>(null);
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
 
-  const handleAcceptJob = (id: string) => {
-    setJobs(prevJobs => 
-      prevJobs.map(job => job.id === id ? { ...job, status: 'In Progress' as JobStatus } : job)
+  const handleAcceptJob = (jobId: string): void => {
+    setJobs((previousJobs) =>
+      previousJobs.map((job) => (
+        job.id === jobId ? { ...job, status: 'In Progress' as JobStatus } : job
+      ))
     );
     setSelectedJob(null);
     setSelectedAcceptJob(null);
     setActiveTab('In Progress');
   };
 
-  const handleDeclineJob = (id: string, reason: string) => {
-    setJobs(prevJobs => 
-      prevJobs.map(job => 
-        job.id === id 
-          ? { ...job, status: 'Declined' as JobStatus, declineReason: reason } 
+  const handleDeclineJob = (jobId: string, reason: string): void => {
+    setJobs((previousJobs) =>
+      previousJobs.map((job) => (
+        job.id === jobId
+          ? { ...job, status: 'Declined' as JobStatus, declineReason: reason }
           : job
-      )
+      ))
     );
     setSelectedDeclineJob(null);
     setActiveTab('Declined');
   };
 
-  const filteredJobs = jobs.filter(job => {
+  const handleLogout = (): void => {
+    clearWorkerSession();
+    navigate('/worker-login', { replace: true });
+  };
+
+  const filteredJobs = jobs.filter((job) => {
     if (activeTab === 'All') return true;
     return job.status === activeTab;
   });
 
   return (
     <div className="min-h-screen bg-[#F9F6F2] font-sans flex flex-col items-center overflow-x-hidden relative text-left">
-      
-      {/* HEADER */}
-      <Header onLogoClick={() => navigate('/HomeWorker')} />
+      <Header onLogoClick={() => navigate(WORKER_DASHBOARD_ROUTE)} />
 
       <div className="w-full max-w-[1280px] flex gap-6 items-start p-6">
-        
-        {/* SIDEBAR */}
-        <Sidebar location={location} navigate={navigate} />
+        <Sidebar
+          location={location}
+          navigate={navigate}
+          workerName={workerName}
+          onLogout={handleLogout}
+        />
 
-        {/* MAIN CONTENT */}
         <main className="flex-1">
           <header className="mb-8 px-2">
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Jobs</h1>
@@ -110,7 +118,6 @@ const WorkersJobs: React.FC = () => {
         </main>
       </div>
 
-      {/* MODALS */}
       <JobDetailsModal
         job={selectedJob}
         onClose={() => setSelectedJob(null)}

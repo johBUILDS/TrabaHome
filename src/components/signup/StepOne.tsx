@@ -1,5 +1,6 @@
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { StepOneProps } from '../../types/Worker.types.ts';
 
 const StepOne: React.FC<StepOneProps> = ({ 
@@ -148,7 +149,10 @@ const StepOne: React.FC<StepOneProps> = ({
         Continue to Verification
       </button>
       <p className="text-center text-[10px] text-gray-600 mt-4">
-        Already have an account? <span className="font-bold text-black cursor-pointer">Sign In</span>
+        Already have an account?{" "}
+        <Link to="/worker-login" className="font-bold text-black hover:underline">
+          Sign In
+        </Link>
       </p>
     </div>
   );

@@ -393,7 +393,7 @@ const WorkerSignup: React.FC = () => {
         isOpen={isSubmitted}
         firstName={formData.firstName}
         onClose={() => setIsSubmitted(false)}
-        onGoToDashboard={() => navigate('/dashboard')}
+        onGoToDashboard={() => navigate('/worker-login')}
       />
     </div>
   );

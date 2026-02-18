@@ -57,7 +57,7 @@ export default function LandingPage() {
             {/* Worker Card */}
             <div
               className="p-8 border-2 border-gray-100 rounded-3xl cursor-pointer transition-all duration-300 hover:border-[#00AF91] hover:shadow-md group"
-              onClick={() => navigate("/Worker-signup")}
+              onClick={() => navigate("/worker-signup")}
             >
               <div className="mb-4">
                 <div className="w-16 h-16 bg-[#F0F9F6] rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
