@@ -22,7 +22,7 @@ apiClient.interceptors.request.use((config) => {
 
 type WorkerRouteSuffix =
   | '/register'
-  | '/login'
+  | '/signin'
   | '/login/verify-otp'
   | '/me'
   | '/logout';
@@ -103,7 +103,7 @@ export const workerAPI = {
   },
 
   login: async (payload: WorkerLoginPayload): Promise<WorkerSessionResponse> => {
-    return postWorkerWithFallback<WorkerSessionResponse>('/login', payload);
+    return postWorkerWithFallback<WorkerSessionResponse>('/signin', payload);
   },
 
   verifyLoginOtp: async (payload: WorkerLoginOtpPayload): Promise<WorkerSessionResponse> => {

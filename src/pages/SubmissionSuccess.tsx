@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SubmittedModal from '../components/signup/SubmittedModal';
+import SubmittedModal from '../components/signup/SubmittedModal.tsx';
 
 const SubmissionSuccess: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);

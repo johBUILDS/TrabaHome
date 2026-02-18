@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, CheckCircle, Camera, Lock, ChevronDown, X, AlertCircle } from 'lucide-react';
 import { idTypes } from '../../constants/SignUpData.ts';
 import { classifyID, type ClassificationResult } from '../../services/idClassifierApi.ts';
-import type { StepTwoProps, WorkerSignupFormData } from '../../types/Worker.types';
+import type { StepTwoProps, WorkerSignupFormData } from '../../types/Worker.types.ts';
 
 const StepTwo: React.FC<StepTwoProps> = ({ 
   formData,

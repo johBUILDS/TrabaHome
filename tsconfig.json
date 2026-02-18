@@ -9,6 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
+    "allowJs": true,
     "types": [],
     // For nodejs:
     // "lib": ["esnext"],
