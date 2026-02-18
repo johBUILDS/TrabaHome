@@ -416,12 +416,8 @@ const WorkerSignup = () => {
                   onChange={handleInputChange}
                   className={`w-full p-3 bg-gray-100 rounded-lg text-sm outline-none appearance-none ${errors.idType ? 'border border-red-500' : ''}`}
                 >
-                  <option value="">Select type of Valid ID</option>
-                  <option value="UMID">UMID</option>
-                  <option value="DriversLicense">Driver's License</option>
+                 
                   <option value="PhilSys">PhilSys ID</option>
-                  <option value="Passport">Passport</option>
-                  <option value="PRC">PRC ID</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
               </div>

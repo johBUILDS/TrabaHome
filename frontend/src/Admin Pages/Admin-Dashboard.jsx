@@ -20,6 +20,8 @@ const AdminDashboard = () => {
     }
     else if (label === 'Workers') { 
       navigate('/admin-workers'); 
+    } else if (label === 'Profile') {
+      navigate('/admin-profile');
     }
   };
 

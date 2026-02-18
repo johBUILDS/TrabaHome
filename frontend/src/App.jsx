@@ -27,6 +27,7 @@ import AdminHomeowners from "./Admin Pages/Admin-Homeowners";
 import AdminWorkers from "./Admin Pages/Admin-Workers";
 import AdminRequest from "./Admin Pages/Admin-Request";
 import AdminSmslogs from "./Admin Pages/Admin-Smslogs";
+import AdminProfile from "./Admin Pages/Admin-Profile"; 
 
 export default function App() {
   return (
@@ -87,6 +88,7 @@ export default function App() {
         <Route path="/admin-workers" element={<AdminWorkers />} />
         <Route path="/admin-requests" element={<AdminRequest />} />
         <Route path="/admin-smslogs" element={<AdminSmslogs />} />
+        <Route path="/admin-profile" element={<AdminProfile />} />
 
         {/* Fallback: Redirect to landing page if path doesn't exist to avoid blank screen */}
         <Route path="*" element={<Navigate to="/" replace />} />
