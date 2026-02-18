@@ -1,16 +1,16 @@
-import React from "react";
+﻿import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // Homeowner Pages
-import LandingPage from "./pages/LandingPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import SignUpPage from "./pages/SignUpPage.jsx";
-import Home from "./pages/Home.jsx";
-import SearchResult from "./pages/SearchResult.jsx"; 
-import WorkerList from "./pages/WorkerList.jsx";      
-import FullMap from "./pages/FullMap.jsx";            
-import WorkerProfile from "./pages/WorkerProfile.jsx";
-import ViewRequests from "./pages/ViewRequests.jsx";
+import LandingPage from "./pages/LandingPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+import SignUpPage from "./pages/SignUpPage.tsx";
+import Home from "./pages/Home.tsx";
+import SearchResult from "./pages/SearchResult.tsx"; 
+import WorkerList from "./pages/WorkerList.tsx";      
+import FullMap from "./pages/FullMap.tsx";            
+import WorkerProfile from "./pages/WorkerProfile.tsx";
+import ViewRequests from "./pages/ViewRequests.tsx";
 
 // Worker Pages
 import WorkerLoginPage from "./workerpages/WorkerLoginPage.tsx";
@@ -21,6 +21,8 @@ import WorkerSignup from "./workerpages/WorkerSignup.tsx";
 import SubmissionSuccess from "./pages/SubmissionSuccess.tsx"
 import GuestOnlyRoute from "./components/auth/GuestOnlyRoute.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
+import HomeownerGuestOnlyRoute from "./components/auth/HomeownerGuestOnlyRoute.jsx";
+import RequireHomeownerAuth from "./components/auth/RequireHomeownerAuth.jsx";
 
 // Admin Pages (Aligned with your actual file names in the sidebar)
 import AdminDashboard from "./adminPages/Admin-Dashboard.jsx"; // Added the dash
@@ -39,9 +41,11 @@ export default function App() {
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
+        {/* Homeowner Auth Routes */}
+        <Route element={<HomeownerGuestOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+        </Route>
 
         <Route element={<GuestOnlyRoute />}>
           <Route path="/worker-login" element={<WorkerLoginPage />} />
@@ -49,12 +53,14 @@ export default function App() {
         </Route>
 
         {/* Homeowner Routes */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/search" element={<SearchResult />} /> 
-        <Route path="/list" element={<WorkerList />} />      
-        <Route path="/map" element={<FullMap />} />          
-        <Route path="/profile/:id" element={<WorkerProfile />} />
-        <Route path="/my-requests" element={<ViewRequests />} />
+        <Route element={<RequireHomeownerAuth />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/search" element={<SearchResult />} /> 
+          <Route path="/list" element={<WorkerList />} />      
+          <Route path="/map" element={<FullMap />} />          
+          <Route path="/profile/:id" element={<WorkerProfile />} />
+          <Route path="/my-requests" element={<ViewRequests />} />
+        </Route>
 
         {/* Worker Routes */}
         <Route element={<RequireAuth />}>
@@ -83,3 +89,4 @@ export default function App() {
     </Router>
   );
 }
+
